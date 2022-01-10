@@ -7,7 +7,7 @@
 # `synimu` Overview
 
 This `synimu` package contains the functions and datasets that allow to
-replicate the examples considered in Zhang, Y. et al. (2021) (see
+replicate the examples considered in Zhang, et al. (2021) (see
 [arXiv:2106.15997](https://arxiv.org/abs/2106.15997)). In particular,
 this package implements a non-parametric method that makes use of the
 wavelet cross-covariance at different scales to combine the measurements
