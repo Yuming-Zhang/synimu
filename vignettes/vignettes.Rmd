@@ -14,7 +14,15 @@ In @zhang2021scalewise, we introduce a method allowing to compute synthetic (or 
 
 # Data generation
 
-The package `synimu` allows to simulate various multivariate state-space models
+The package `synimu` allows to simulate data from various multivariate composite (or latent) time series models. For example, consider the model "white noise +  random walk", which in a multivariate setting can be expressed as follows. Let $W_t \sim \mathcal{N}(\mathbf{0}, \mathbf{R})$, $Y_t \sim \mathcal{N}(\mathbf{0}, \mathbf{Q})$ and
+
+$$X_t = X_{t-1} + Y_t,$$
+where $\mathbf{R}$ and $\mathbf{Q}$ are covariance matrices. Then, we assume that $X_t$, $W_t$ and $Y_t$ are latent but we observe $Z_t$ which is defined as
+
+$$Z_t = X_t + W_t.$$
+
+
+state-space models
 
 
 Generate sample data from a gyroscope array following a white noise plus random walk error model
