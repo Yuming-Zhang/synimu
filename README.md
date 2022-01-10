@@ -24,7 +24,7 @@ cross-covariance estimator which has different important applications.
 Below are instructions on how to install and make use of the `synimu`
 package.
 
-## Install Instructions
+## Installation Instructions
 
 The `wv` package is available only on GitHub at the moment. The latest
 version can be installed with:
