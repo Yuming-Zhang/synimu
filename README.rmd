@@ -19,158 +19,21 @@ knitr::opts_chunk$set(
 
 # `synimu` Overview
 
+This `synimu` package contains the functions and datasets that allow to replicate the examples considered in Zhang, Y. et al. (2021) (see [arXiv:2106.15997](https://arxiv.org/abs/2106.15997)). In particular, this package implements a non-parametric method that makes use of the wavelet cross-covariance at different scales to combine the measurements coming from an array of gyroscopes in order to deliver an optimal measurement signal without needing any assumption on the processes underlying the individual error signals. Although the method is illustrated with the applications of gyroscopes, it can be applied to any sensor or signal where one aims to compute an average signal having optimal properties in terms of its resulting wavelet variance. Moreover, in this package we also provide a rigorous non-parametric approach for the estimation of the asymptotic covariance matrix of the wavelet cross-covariance estimator which has different important applications.
 
-Yuming Zhang, Davide A. Cucci, Roberto Molinari and Stéphane Guerrier, *Scale-wise Variance Minimization for Optimal Virtual Signals: An Approach for Redundant Gyroscopes*, [arXiv:2106.15997](https://arxiv.org/abs/2106.15997), 2021.
-
-
-This repository is dedicated to the Wavelet Variance (`wv`) R package where different tools to perform wavelet variance analysis are provided (both standard and robust analysis). Below are instructions and examples on how to install and make use of the `wv` package.
-
-*Currently the only implemented wavelet filter in the package is the Haar wavelet filter.*
+Below are instructions on how to install and make use of the `synimu` package.
 
 ## Install Instructions
 
-The `wv` package is available on both CRAN and GitHub. The CRAN version is considered stable while the GitHub version is subject to modifications/updates which may lead to installation problems or broken functions. You can install the stable version of the `wv` package with:
-
-```{r, eval=FALSE}
-install.packages("wv")
-```
-
-For users who are interested in having the latest developments, the [GitHub](https://github.com/SMAC-Group/wv) version is ideal although more dependencies are required to run a stable version of the package. Most importantly, users **must** have a (C++) compiler installed on their machine that is compatible with R (e.g. Clang). Once you've made sure that you have a compatible C++ compiler installed on your computer, run the following code in an R session and you will be ready to use the devlopment version of `wv`.
+The `wv` package is available only on GitHub at the moment. The latest version can be installed with:
 
 ```{r, eval = F}
 # Install dependencies
 install.packages(c("devtools"))
 
 # Install/Update the package from GitHub
-devtools::install_github("SMAC-Group/wv")
+devtools::install_github("Yuming-Zhang/synimu")
 
 # Install the package with Vignettes/User Guides 
-devtools::install_github("SMAC-Group/wv", build_vignettes = TRUE)
+devtools::install_github("Yuming-Zhang/synimu", build_vignettes = TRUE)
 ```
-
-## Wavelet Variance Analysis
-
-Below are some examples of how to make use of some of the main functions in the `wv` package. Firstly, we highlight the functions that perform the wavelet decomposition of a time series (both the discrete and maximum-overlap discrete wavelet transforms) based on which the following functions can compute the wavelet variance and its corresponding confidence intervals for inference. These are particularly useful, for example, when comparing the wavelet variance of different time series in order to understand if they share common properties or not.
-
-### Discrete Wavelet Transform (DWT)
-
-The DWT performs a wavelet decomposition by applying the wavelet filter to non-overlapping windows of the time series. Below is an example of how to perform this decomposition on a simulated Gaussian random walk process.
-
-```{r}
-# Load packages
-library(wv)
-library(simts)
-
-# Set seed for reproducibility 
-set.seed(999)
-
-# Simulate a Gaussian random walk
-n = 10^3
-model = RW(gamma2 = 1)
-Xt = gen_gts(n = n, model = model)
-
-# Plot the simulated random walk
-plot(Xt)
-```
-
-Based on the above code, we have simulated a random walk with null expectation unit innovation variance. The functions to compute the DWT, access its output and plot the related wavelet coefficients can be found below.
-
-<!-- For the moment this method will only work with Haar wavelets.  -->
-
-```{r, fig.align = 'center', fig.cap = "Discrete Wavelet Transform (DWT) for scales 1 to 4 for a simulated Gaussian white noise."}
-# DWT
-Xt.dwt = dwt(Xt)
-
-# Print the Wavelet Coefficients 
-summary(Xt.dwt)
-
-# Plot of Discrete Wavelet Coefficients
-plot(Xt.dwt)
-```
-
-### Maximum Overlap Discrete Wavelet Transformation (MODWT)
-
-Compared to the DWT, the MODWT applies the wavelet filter to overlapping windows of the time series (more specifically it slides the filter by one observation at a time). As for the DWT, the functions to perform the MODWT are below.
-
-```{r, fig.height = 7, fig.align = 'center', fig.cap = "Maximum Overlap Discrete Wavelet Transform  (MODWT) for scales 1 to 9 for a simulated Gaussian white noise."}
-# MODWT
-Xt.modwt = modwt(Xt)
-
-# Summary of Maximum Overlap Discrete Wavelet Coefficients 
-summary(Xt.modwt)
-
-# Plot of Maximum Overlap Discrete Wavelet Coefficients
-plot(Xt.modwt, index = "all")
-```
-
-### Wavelet Variance
-
-If the interest of the user lies solely in the wavelet variance (issued from either DWT or MODWT), then the package provides functions that directly compute this quantity and deliver the tools necessary to analyse it (confidence intervals and plots). Below is a code that simulates a white noise and a random walk process and directly plots their respective wavelet variances in a log-log plot applying the `plot()` function to the package function `wvar()`.
-
-```{r, fig.height = 3.5, fig.width = 7.25, fig.align = 'center', fig.cap = "Wavelet variance of two simulated processes, i.e white noise (left panel) and random walk (right panel)."}
-# Set seed for reproducibility 
-set.seed(999)
-
-# Simulate Gaussian White noise
-n = 10^4
-Xt = gen_gts(n = n, model = WN(sigma2 = 1))
-
-# Simulate Gaussian Random walk
-Yt = gen_gts(n = n, model = RW(gamma2 = 1))
-
-# Plot WV
-par(mfrow = c(1,2), mar = c(4,5,1,1))
-plot(wvar(Xt), main = "White noise")
-plot(wvar(Yt), main = "Random walk", legend_position = NULL)
-```
-
-As indicated in the legends, the light shaded blue area represents the 95% confidence intervals for each scale of estimated wavelet variance. However, there could be many practical settings where the time series can suffer from some "contamination" (e.g. outliers) which can seriously bias the standard estimator of wavelet variance. The code below randomly replaces one percent of the observations from the above simulated random walk with observations from a white noise process with larger variance.
-
-```{r, fig.height = 3.5, fig.width = 7.25, fig.align = 'center'}
-# Add contamination
-gamma = 0.01
-Yt2 = Yt
-Yt2[sample(1:n,round(gamma*n))] = rnorm(round(gamma*n),0,5)
-par(mfrow = c(1,2), mar = c(4,5,1,1))
-robust_eda(Yt, main = "RW without contamination")
-robust_eda(Yt2, legend_position = NULL, main = "RW with contamination")
-```
-
-It can be seen how the classic and robust wavelet variance estimates agree when there is no contamination (left plot) but they classic estimates are heavily biased (especially at the first more informative scales) when the random walk has only 1% contamination.
-
-When dealing with different time series, it is possible to compare their respective wavelet variances to understand if they have similar behaviour/properties. An example is given below where four different first-order autoregressive processes (with different values of the autoregressive parameters) are simulated and succesively their wavelet variance is computed.
-
-```{r, fig.height = 5, fig.width = 7.25, fig.align = 'center'}
-# Simulate AR processes
-n = 10^5
-Xt = gen_gts(n = n, model = AR1(phi = 0.10, sigma2 = 1))
-Yt = gen_gts(n = n, model = AR1(phi = 0.35, sigma2 = 1))
-Zt = gen_gts(n = n, model = AR1(phi = 0.79, sigma2 = 1))
-Wt = gen_gts(n = n, model = AR1(phi = 0.95, sigma2 = 1))
-
-# Compute WV
-wv_Xt = wvar(Xt)
-wv_Yt = wvar(Yt)
-wv_Zt = wvar(Zt)
-wv_Wt = wvar(Wt)
-
-# Plot results
-compare_wvar(wv_Xt, wv_Yt, wv_Zt, wv_Wt)
-```
-
-As seen above, the function `compare_wvar()` allows to plot different outputs of the `wvar()` function and it can be seen how the four time series deliver different wavelet variances (as the autoregressive parameter approaches zero, the shape of the wavelet variance plot approaches the behaviour of the wavelet variance of a white noise process).
-
-### Wavelet Variance on IMU Data
-
-In the package, we also add some datasets which are the wavelet variance computed based on real IMU data. Currently the package includes datasets `adis_wv`, `imar_wv`, `kvh1750_wv`, `ln200_wv` and `navchip_av`. We can plot these wavelet variance simply with the `plot` function. As an example:
-
-```{r, fig.height = 8, fig.width = 8, fig.align = 'center'}
-data("kvh1750_wv")
-plot(kvh1750_wv)
-```
-
-# User Guides
-
-Various guides ship with package or are available on <http://smac-group.com/> to provide insight into how to use the different methods. At the present time, the following vignettes are available:
-
-1. Process to Haar Wavelet Variance [(Online)](https://smac-group.com/computing/2016/05/23/process-to-haar-wavelet-variance-formulae.html)
