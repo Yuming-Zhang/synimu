@@ -1,5 +1,14 @@
+#' @title TO DO
+#' @description WHAT IT DOES
 #' @export
-
+#' @param R        what it does
+#' @param J        what it does
+#' @return something
+#' @details
+#' If needed
+#' @author WHO WROTE IT
+#' @examples
+#' # TO BE ADDED
 expect.wv_WN = function(R, J){
   wv = 1/2^(1:J) * R
   wv
