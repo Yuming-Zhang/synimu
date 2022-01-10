@@ -4,6 +4,8 @@ template:
 
 navbar:
   left:
+  - text: Vignettes
+    href: articles/vignettes.html
   - text: Reference
     href: reference/index.html
   right:

@@ -1,0 +1,29 @@
+---
+title: "`synimu` Vignettes"
+bibliography: biblio.bib
+output: 
+  rmarkdown::html_vignette:
+    fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Simulations from Time Series Models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+In @zhang2021scalewise, we introduce a method allowing to compute synthetic (or average) signals issued from multiple correlated and/or even non-stationary signals. In a nutshell, this method minimizes a weighted average of the wavelet variance of the synthetic signal whose weights can be chosen depending on the application at hand. This method is illustrated with gyroscopes which often contain non-stationary processes such as random walks. This package implements the method of @zhang2021scalewise, called Scale-wise Variance Optimization or SVO, as well as the approach of @s17020352, which is used as a comparison.
+
+# Data generation
+
+The package `synimu` allows to simulate various multivariate state-space models
+
+
+Generate sample data from a gyroscope array following a white noise plus random walk error model
+
+```{r}
+library(synimu)
+```
+kjg
+
+@cobb1978problem
+
+# ref
