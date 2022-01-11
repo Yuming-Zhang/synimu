@@ -1,3 +1,55 @@
+
+# This function computes the theoretical wavelet variance of a white noise.
+# R: variance of the white noise
+# J: maximum number of scales
+expect.wv_WN = function(R, J){
+  wv = 1/2^(1:J) * R
+  wv
+}
+
+# This function computes the theoretical wavelet variance of a random walk.
+# Q: variance of the innovation
+# J: maximum number of scales
+expect.wv_RW = function(Q, J){
+  wv = (2^(2*(1:J))+2)/(12*2^(1:J)) * Q
+  wv
+}
+
+# This function computes the theoretical wavelet variance of an AR(1) process.
+# phi: the phi term of the AR(1) process
+# Z: variance of the AR(1) process
+# J: maximum number of scales
+expect.wv_AR = function(phi, Z, J){
+  wv = ((phi^2-1)*2^(1:J) + 2*phi*(phi^(2^(1:J)) - 4*phi^(2^(0:(J-1))) + 3))/((phi-1)^3 * (phi+1) * 4^(1:J)) * Z
+  wv
+}
+
+# This function computes the theoretical wavelet cross-covariance of two white noise processes.
+# R.cross: covariance of the white noise processes.
+# J: maximum number of scales
+expect.wccv_WN = function(R.cross, J){
+  wccv = 1/2^(1:J) * R.cross
+  wccv
+}
+
+# This function computes the theoretical wavelet variance of two random walk processes.
+# Q.cross: covariance of the innovations
+# J: maximum number of scales
+expect.wccv_RW = function(Q.cross, J){
+  wv = (2^(2*(1:J))+2)/(12*2^(1:J)) * Q.cross
+  wv
+}
+
+# This function computes the theoretical wavelet variance of two AR(1) processes.
+# phi1, phi2: the phi terms of the AR(1) processes
+# Z.cross: covariance of the AR(1) processes
+# J: maximum number of scales
+expect.wccv_AR = function(phi1, phi2, Z.cross, J){
+  wccv = (2^(1:J) + 2*(phi2/(1-phi2)*(2^(1:J)/2 - 1) - (phi2/(1-phi2))^2*(1-phi2^(2^(1:J)/2 - 1))) + 2*(phi1/(1-phi1)*(2^(1:J)/2 - 1) - (phi1/(1-phi1))^2*(1-phi1^(2^(1:J)/2 - 1))) - ((1-phi1^(2^(1:J)/2))/(1-phi1))^2 * phi1 - ((1-phi2^(2^(1:J)/2))/(1-phi2))^2 * phi2) / (1-phi1*phi2) * Z.cross / 4^(1:J)
+  wccv
+}
+
+
 #' @title TO DO
 #' @description WHAT IT DOES
 #' @export
@@ -9,46 +61,7 @@
 #' @author WHO WROTE IT
 #' @examples
 #' # TO BE ADDED
-expect.wv_WN = function(R, J){
-  wv = 1/2^(1:J) * R
-  wv
-}
-
-#' @export
 #'
-expect.wv_RW = function(Q, J){
-  wv = (2^(2*(1:J))+2)/(12*2^(1:J)) * Q
-  wv
-}
-
-#' @export
-
-expect.wv_AR = function(phi, Z, J){
-  wv = ((phi^2-1)*2^(1:J) + 2*phi*(phi^(2^(1:J)) - 4*phi^(2^(0:(J-1))) + 3))/((phi-1)^3 * (phi+1) * 4^(1:J)) * Z
-  wv
-}
-
-#' @export
-
-expect.wccv_WN = function(R.cross, J){
-  wccv = 1/2^(1:J) * R.cross
-  wccv
-}
-
-#' @export
-
-expect.wccv_RW = function(Q.cross, J){
-  wv = (2^(2*(1:J))+2)/(12*2^(1:J)) * Q.cross
-  wv
-}
-
-#' @export
-
-expect.wccv_AR = function(phi1, phi2, Z.cross, J){
-  wccv = (2^(1:J) + 2*(phi2/(1-phi2)*(2^(1:J)/2 - 1) - (phi2/(1-phi2))^2*(1-phi2^(2^(1:J)/2 - 1))) + 2*(phi1/(1-phi1)*(2^(1:J)/2 - 1) - (phi1/(1-phi1))^2*(1-phi1^(2^(1:J)/2 - 1))) - ((1-phi1^(2^(1:J)/2))/(1-phi1))^2 * phi1 - ((1-phi2^(2^(1:J)/2))/(1-phi2))^2 * phi2) / (1-phi1*phi2) * Z.cross / 4^(1:J)
-  wccv
-}
-
 d.wccv_RW = function(J) {
   dwv = (2^(2*(1:J))+2)/(12*2^(1:J))
   dwv

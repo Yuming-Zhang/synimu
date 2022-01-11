@@ -2,10 +2,22 @@
 % Please edit documentation in R/functions.R
 \name{find_optimal_coefs}
 \alias{find_optimal_coefs}
-\title{closed-form solution to optimal coefs}
+\title{Estimated Optimal Coefficients based on Scale-wise Variance Optimization}
 \usage{
 find_optimal_coefs(Xt, scale_weights)
 }
+\arguments{
+\item{Xt}{A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.}
+
+\item{scale_weights}{A \code{vector} that denotes the weights on scales. All elements should be non-negative and sum to one.}
+}
+\value{
+A \code{vector} of the estimated optimal coefficients on the p individual processes.
+}
 \description{
-closed-form solution to optimal coefs
+This function computes the estimated optimal coefficients based on the Scale-wise Variance Optimization approach proposed in Zhang et al. (2021).
+The detailed definition can be found in Equation (7) in Zhang et al. (2021) (link: [link](https://arxiv.org/abs/2106.15997)).
+}
+\author{
+Yuming Zhang
 }

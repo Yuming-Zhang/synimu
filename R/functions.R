@@ -1,4 +1,15 @@
+#' @title Empirical Wavelet Cross-Covariance
+#' @description This function provides an empirical estimate of the wavelet cross-covariance given multiple processes.
 #' @export
+#' @param Xt A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.
+#' @return A \code{list} with the following structure:
+#' \itemize{
+#'  \item wccv: A \code{matrix} of the estimated wavelet cross-covariance.
+#'  \item wccv.cov: A \code{matrix} of the estimated covariance matrix of the estimated wavelet cross-covariance.
+#'  \item ci_low: A \code{matrix} of the lower bound of the confidence interval of the estimated wavelet cross-covariance.
+#'  \item ci_high: A \code{matrix} of the upper bound of the confidence interval of the estimated wavelet cross-covariance.
+#' }
+#' @author Haotian Xu
 
 wccv_local = function(Xt){
   num.ts = ncol(Xt)
@@ -32,100 +43,9 @@ wccv_local = function(Xt){
   list(wccv = t(wccv.mat), wccv.cov = t(cov.mat), ci_low = t(ci.low.mat), ci_high = t(ci.high.mat))
 }
 
-### Transform Weights
 
-inv_logit = function(x){
-  exp(x)/(1 + exp(x))
-}
 
-transform_weights = function(kappa_R){
-  n = length(kappa_R)
-  kappa = rep(NA, n)
-  sum_available = 1
-  for (i in 1:n){
-    kappa[i] = sum_available * inv_logit(kappa_R[i])
-    sum_available = 1 - sum(kappa[1:i])
-  }
-  kappa
-}
-
-obj.fun.theo.wts = function(kappa_R, W, scale_weights){
-  size = dim(W)
-  kappa = transform_weights(kappa_R = kappa_R)
-  weights = c(kappa, 1 - sum(kappa))
-  inter = 0
-  for (j in 1:size[1]){
-    for (i in 1:size[2]){
-      for (k in 1:size[3]){
-        inter = inter + scale_weights[j]*weights[i]*weights[k]*W[j,i,k]
-      }
-    }
-  }
-  inter
-}
-
-#' iterative method for optimal coefs
-#'
-#' @export
-
-find_optimal_coefs_iterative = function(Xt, scale_weights){
-  # setting
-  num.ts = ncol(Xt)
-  N = nrow(Xt)
-  J = floor(log2(N)) - 1
-
-  # wccv
-  wcov = wccv(Xt)
-  wcov.mat = wcov$wccv
-  wcov.cov.mat = wcov$wccv.cov
-
-  # set up W array
-  W = array(NA, c(J, num.ts, num.ts))
-
-  counter = 1
-  for (i in 1:num.ts) {
-    for (j in i:num.ts) {
-      if(i == j){
-        W[,i,i] = wvar(Xt[,i])$variance
-      }else{
-        W[,i,j] = wcov.mat[,counter]
-        W[,j,i] = wcov.mat[,counter]
-        counter = counter + 1
-      }
-    }
-  }
-
-  # W[,1,1] = wvar(Xt[,1])$variance
-  # W[,1,2] = wcov.mat[,1]
-  # W[,1,3] = wcov.mat[,2]
-  # W[,1,4] = wcov.mat[,3]
-  #
-  # W[,2,1] = wcov.mat[,1]
-  # W[,2,2] = wvar(Xt[,2])$variance
-  # W[,2,3] = wcov.mat[,4]
-  # W[,2,4] = wcov.mat[,5]
-  #
-  # W[,3,1] = wcov.mat[,2]
-  # W[,3,2] = wcov.mat[,4]
-  # W[,3,3] = wvar(Xt[,3])$variance
-  # W[,3,4] = wcov.mat[,6]
-  #
-  # W[,4,1] = wcov.mat[,3]
-  # W[,4,2] = wcov.mat[,5]
-  # W[,4,3] = wcov.mat[,6]
-  # W[,4,4] = wvar(Xt[,4])$variance
-
-  # compute coefficient
-  # NOTE: c(-1.1, -0.7, 0) below corresponds to initial values of the iterative algo to find coefficients,
-  # depending on your data, you may want to adjust it to avoid computation errors.
-  res_kappa = transform_weights(optim(c(-1.1, -0.7, 0), obj.fun.theo.wts, W = W, scale_weights = scale_weights)$par)
-
-  coefs = c(res_kappa, 1 - sum(res_kappa))
-  return(coefs)
-}
-
-#' Construct the matrix A hat
-
+# Computes the matrix \hat{A} in Zhang et al. (2021)
 get_A = function(Xt, scale_weights){
   # setting
   num.ts = ncol(Xt)
@@ -164,9 +84,14 @@ get_A = function(Xt, scale_weights){
   return(A)
 }
 
-#' closed-form solution to optimal coefs
-#'
+#' @title Estimated Optimal Coefficients based on Scale-wise Variance Optimization
+#' @description This function computes the estimated optimal coefficients based on the Scale-wise Variance Optimization approach.
+#' The detailed definition can be found in Equation (7) in Zhang et al. (2021) (https://arxiv.org/abs/2106.15997).
 #' @export
+#' @param Xt A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.
+#' @param scale_weights A \code{vector} that denotes the weights on scales. All elements should be non-negative and sum to one.
+#' @return A \code{vector} of the estimated optimal coefficients on the p individual processes.
+#' @author Yuming Zhang
 
 find_optimal_coefs = function(Xt, scale_weights){
   num.ts = ncol(Xt)
@@ -181,12 +106,19 @@ find_optimal_coefs = function(Xt, scale_weights){
 }
 
 
+#' @title Construct Virtual Gyroscope Signal
+#' @description This function computes the virtual gyroscope signal by taking a linear combination of the individual gyroscope signals.
 #' @export
+#' @param Xt A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.
+#' @param weights A \code{vector} of coefficients on individual signals. All elements should be non-negative and sum to one.
+#' @return A \code{vector} of the virtual gyroscope signal.
+#' @author Yuming Zhang
+
 get_virtual_gyro = function(Xt, weights){
   Xt %*% weights
 }
 
-
+# Computes the matrix A_0 in Zhang et al. (2021)
 get_A_theo = function(wccv.mat, wv.mat, scale_weights){
   # setting
   num.ts = dim(wv.mat)[2]
@@ -219,9 +151,15 @@ get_A_theo = function(wccv.mat, wv.mat, scale_weights){
   return(A)
 }
 
-#' closed-form solution to optimal coefs from theoretical wvs and wccvs
-#'
+#' @title True Optimal Coefficients based on Scale-wise Variance Optimization
+#' @description This function computes the true optimal coefficients based on the Scale-wise Variance Optimization approach.
+#' The detailed definition can be found in Equation (6) in Zhang et al. (2021) (https://arxiv.org/abs/2106.15997).
 #' @export
+#' @param wccv.mat A \code{matrix} of the wavelet cross-covariance.
+#' @param wv.mat A \code{matrix} of the wavelet variance.
+#' @param scale_weights A \code{vector} that denotes the weights on scales. All elements should be non-negative and sum to one.
+#' @return A \code{vector} of the true optimal coefficients on the p individual processes.
+#' @author Yuming Zhang
 
 find_optimal_coefs_theo = function(wccv.mat, wv.mat, scale_weights){
   num.ts = dim(wv.mat)[2]
@@ -236,9 +174,16 @@ find_optimal_coefs_theo = function(wccv.mat, wv.mat, scale_weights){
 }
 
 
-#' get estimated covariance matrix for the coefficients with block bootstrap
-#'
+#' @title Empirical Covariance of Coefficients on Individual Signals
+#' @description This function computes the estimated covariance matrix of the coefficients on individual signals using the Moving Block Bootstrap approach considered in Zhang et al. (2021).
 #' @export
+#' @param Xt A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.
+#' @param scale_weights A \code{vector} that denotes the weights on scales. All elements should be non-negative and sum to one.
+#' @param c_hat A \code{vector} of the estimated coefficients on individual signals.
+#' @param B An \code{integer} indicating the number of Monte-Carlo replications used in the Moving Block Bootstrap. Default value is 10^3.
+#' @param sB A \code{double} that denotes the positive constant C associated with the block size, which is defined as floor(C*T^{1/3}). Default value is 10.
+#' @return A \code{matrix} of the estimated covariance matrix of the coefficients on individual signals.
+#' @author Yuming Zhang
 
 get_c_var = function(Xt, scale_weights, c_hat, B = 10^3, sB = 10){
   num.ts = ncol(Xt)
@@ -253,6 +198,7 @@ get_c_var = function(Xt, scale_weights, c_hat, B = 10^3, sB = 10){
   cov(c_hat_mat)
 }
 
+# This function computes bootstrapped c_hat.
 get_c_hat_star = function(Xt, scale_weights, sB){
   num.ts = ncol(Xt)
   N = nrow(Xt)

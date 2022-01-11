@@ -8,7 +8,8 @@ Authors@R: c(
     person("Yuming", "Zhang", email = "yumingzhang0525@gmail.com", role = c("aut","cre")),
     person("Davide A.", "Cucci", role = "aut"),
     person("Stéphane", "Guerrier", role = "aut"),
-    person("Roberto", "Molinari", role = "aut")
+    person("Roberto", "Molinari", role = "aut"),
+    person("Haotian", "Xu", role = "aut")
     )
 Maintainer: Yuming Zhang <yumingzhang0525@gmail.com>
 Description: This R package contains the functions and datasets that allow to replicate the examples considered in Zhang, et al. (2021) <arXiv: 2106.15997>. In particular, this package implements a non-parametric method that makes use of the wavelet cross-covariance at different scales to combine the measurements coming from an array of gyroscopes in order to deliver an optimal measurement signal without needing any assumption on the processes underlying the individual error signals. Although the method is illustrated with the applications of gyroscopes, it can be applied to any sensor or signal where one aims to compute an average signal having optimal properties in terms of its resulting wavelet variance. Moreover, in this package we also provide a rigorous non-parametric approach for the estimation of the asymptotic covariance matrix of the wavelet cross-covariance estimator which has different important applications.   

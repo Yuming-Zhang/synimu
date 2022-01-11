@@ -2,6 +2,16 @@ template:
   params:
     bootswatch: flatly
 
+reference:
+  - title: Wavelet Cross-Covariance
+    contents:
+    - wccv_local
+    - find_optimal_coefs
+    - get_virtual_gyro
+    - get_c_var
+
+
+
 navbar:
   left:
   - text: Vignettes
@@ -10,4 +20,5 @@ navbar:
     href: reference/index.html
   right:
   - icon: fa-github
-    href: https://github.com/?????
+    href: https://github.com/Yuming-Zhang/synimu
+
