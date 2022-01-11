@@ -84,7 +84,7 @@ get_A = function(Xt, scale_weights){
   return(A)
 }
 
-#' @title Estimated Optimal Coefficients based on Scale-wise Variance Optimization
+#' @title Estimate Optimal Coefficients based on Scale-wise Variance Optimization
 #' @description This function computes the estimated optimal coefficients based on the Scale-wise Variance Optimization approach.
 #' The detailed definition can be found in Equation (7) in Zhang et al. (2021) (https://arxiv.org/abs/2106.15997).
 #' @export
@@ -118,170 +118,10 @@ get_virtual_gyro = function(Xt, weights){
   Xt %*% weights
 }
 
-# Computes the matrix A_0 in Zhang et al. (2021)
-get_A_theo = function(wccv.mat, wv.mat, scale_weights){
-  # setting
-  num.ts = dim(wv.mat)[2]
-  J = dim(wv.mat)[1]
-
-  # set up W array
-  W = array(NA, c(J, num.ts, num.ts))
-
-  counter = 1
-  for (i in 1:num.ts) {
-    for (j in i:num.ts) {
-      if(i == j){
-        W[,i,i] = wv.mat[,i]
-      }else{
-        W[,i,j] = wccv.mat[,counter]
-        W[,j,i] = wccv.mat[,counter]
-        counter = counter + 1
-      }
-    }
-  }
-
-  # build A
-  A = matrix(NA, nrow = num.ts, ncol = num.ts)
-  for (i in 1:num.ts) {
-    for (k in 1:num.ts) {
-      A[i,k] = sum(scale_weights *W[,i,k])
-    }
-  }
-
-  return(A)
-}
-
-#' @title True Optimal Coefficients based on Scale-wise Variance Optimization
-#' @description This function computes the true optimal coefficients based on the Scale-wise Variance Optimization approach.
-#' The detailed definition can be found in Equation (6) in Zhang et al. (2021) (https://arxiv.org/abs/2106.15997).
-#' @export
-#' @param wccv.mat A \code{matrix} of the wavelet cross-covariance.
-#' @param wv.mat A \code{matrix} of the wavelet variance.
-#' @param scale_weights A \code{vector} that denotes the weights on scales. All elements should be non-negative and sum to one.
-#' @return A \code{vector} of the true optimal coefficients on the p individual processes.
-#' @author Yuming Zhang
-
-find_optimal_coefs_theo = function(wccv.mat, wv.mat, scale_weights){
-  num.ts = dim(wv.mat)[2]
-  ones = rep(1, num.ts)
-
-  A = get_A_theo(wccv.mat, wv.mat, scale_weights)
-  A_inv = solve(A)
-
-  res = A_inv %*% ones / as.numeric(t(ones)%*%A_inv%*%ones)
-  res = as.numeric(res)
-  return(res)
-}
 
 
-#' @title Empirical Covariance of Coefficients on Individual Signals
-#' @description This function computes the estimated covariance matrix of the coefficients on individual signals using the Moving Block Bootstrap approach considered in Zhang et al. (2021).
-#' @export
-#' @param Xt A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.
-#' @param scale_weights A \code{vector} that denotes the weights on scales. All elements should be non-negative and sum to one.
-#' @param c_hat A \code{vector} of the estimated coefficients on individual signals.
-#' @param B An \code{integer} indicating the number of Monte-Carlo replications used in the Moving Block Bootstrap. Default value is 10^3.
-#' @param sB A \code{double} that denotes the positive constant C associated with the block size, which is defined as floor(C*T^{1/3}). Default value is 10.
-#' @return A \code{matrix} of the estimated covariance matrix of the coefficients on individual signals.
-#' @author Yuming Zhang
 
-get_c_var = function(Xt, scale_weights, c_hat, B = 10^3, sB = 10){
-  num.ts = ncol(Xt)
-  N = nrow(Xt)
-  c_hat_mat = matrix(NA, nrow = B, ncol = num.ts)
-
-  for (i in 1:B) {
-    c_hat_star = get_c_hat_star(Xt, scale_weights, sB)
-    c_hat_mat[i,] = sqrt(N)*(c_hat_star - c_hat)
-  }
-
-  cov(c_hat_mat)
-}
-
-# This function computes bootstrapped c_hat.
-get_c_hat_star = function(Xt, scale_weights, sB){
-  num.ts = ncol(Xt)
-  N = nrow(Xt)
-  J = floor(log2(N)) - 1
-
-  # ----- block bootstrap on wavelet coefficients
-
-  m = N - 2^1 + 1         # length of first scale
-  h = sB*floor(m^(1/3))   # size of block  # range 0.1 0.5 1 5 10 50 100
-  nb_block = floor(m/h)
-  missing = m - nb_block*h
-  index_block = 1:h
-
-  # fill all scales so that all scales have m wavelet coefficients
-
-  wave_coef_mat = matrix(NA, nrow = m, ncol = num.ts*J)
-  index_last_vec = rep(NA, J)
-
-  for (j in 2:J) {
-    index_last_vec[j] = sample(m-2*(2^j-2)+1, 1) # should use the same for all time series at each scale
-  }
-
-  for (i in 1:num.ts) {
-    Xtmodwt = modwt(Xt[,i])
-    wave_coef_mat[,1+(i-1)*J] = Xtmodwt[[1]]
-
-    for (j in 2:J) {
-      wave_coef_mat[1:(m-2^j+2), j+(i-1)*J] = Xtmodwt[[j]]
-      index_last = index_last_vec[j]
-      wave_coef_mat[(m-2^j+3):m, j+(i-1)*J] = wave_coef_mat[index_last+(0:(2^j-3)), j+(i-1)*J]
-    }
-  }
-
-  # resample
-
-  start_index = sample(0:missing, 1)
-  index = sample(nb_block, nb_block, replace = TRUE)
-  wave_coef_mat_star = matrix(NA, nrow = m, ncol = num.ts*J)
-
-  for (l in 1:length(index)){
-    wave_coef_mat_star[(l-1)*h + index_block, ] = wave_coef_mat[start_index + (index[l]-1)*h + index_block, ]
-  }
-  if (missing > 0){
-    last_index = sample(m - missing, 1)
-    wave_coef_mat_star[(nb_block*h + 1):m, ] = wave_coef_mat[(last_index + 1):(last_index + missing), ]
-  }
-
-
-  # ----- set up W array
-  W = array(NA, c(J, num.ts, num.ts))
-
-  for (i in 1:num.ts) {
-    for (k in 1:num.ts) {
-      for (j in 1:J) {
-        coe1 = wave_coef_mat_star[1:(m - 2^j + 2), j+(i-1)*J]
-        coe2 = wave_coef_mat_star[1:(m - 2^j + 2), j+(k-1)*J]
-        W[j,i,k] = cov(coe1, coe2)
-      }
-    }
-  }
-
-
-  # ----- compute A
-  A = matrix(NA, nrow = num.ts, ncol = num.ts)
-  for (i in 1:num.ts) {
-    for (k in 1:num.ts) {
-      A[i,k] = sum(scale_weights *W[,i,k])
-    }
-  }
-
-  A_inv = solve(A)
-
-  # ----- compute c_hat_star
-  one = rep(1, num.ts)
-  c_hat = as.numeric(A_inv %*% one) / as.numeric(t(one)%*%A_inv%*%one)
-
-  return(c_hat)
-}
-
-# ----------- second method for coefficient covariance
-
-#' @export
-
+# This function computes empirical WCCV and formulate it as a vector.
 get_wccv = function(Xt){
   # setting
   num.ts = ncol(Xt)
@@ -322,8 +162,8 @@ get_wccv = function(Xt){
   return(out)
 }
 
-#' @export
-
+# This function block bootstraps the wavelet coefficients.
+# sB: constant related to the block size
 block_boot_wave_coef = function(Xt, sB = 10){
   num.ts = ncol(Xt)
   N = nrow(Xt)
@@ -400,7 +240,16 @@ block_boot_wave_coef = function(Xt, sB = 10){
 }
 
 
+#' @title Empirical Covariance of Coefficients on Individual Signals
+#' @description This function computes the estimated covariance matrix of the coefficients on individual signals using the Moving Block Bootstrap approach considered in Zhang et al. (2021).
+#' The detailed definition can be found in Equation (8) in Zhang et al. (2021) (https://arxiv.org/abs/2106.15997).
 #' @export
+#' @param Xt A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.
+#' @param scale_weights A \code{vector} that denotes the weights on scales. All elements should be non-negative and sum to one.
+#' @param sB A \code{double} that denotes the positive constant C associated with the block size, which is defined as floor(C*T^{1/3}). Default value is 10.
+#' @param B An \code{integer} indicating the number of Monte-Carlo replications used in the Moving Block Bootstrap.
+#' @return A \code{matrix} of the estimated covariance matrix of the coefficients on individual signals.
+#' @author Yuming Zhang
 
 est_cov = function(Xt, scale_weights, sB = 10, B){
   # setting

@@ -12,13 +12,14 @@ av(Xt)
 \value{
 A \code{list} with the following structure:
 \itemize{
- \item variance: A \code{matrix} of the estimated Allan variance
- \item scales: A \code{vector} of the employed levels (\eqn{N} in [1])
+ \item J TO COMPLETE
+ \item scales TO COMPLETE
+ \item variance TO COMPLETE
 }
 }
 \description{
-This function provides an empirical estimate of the Allan variance given multiple processes,
-as defined in Richard J. Vaccaro and Ahmed S. Zaki, "Reduced-Drift Virtual Gyro from an Array of Low-Cost Gyros" [1], Equation 3
+This function provides an empirical estimate of the Allan variance given multiple processes.
+The detailed definition can be found in Equation (3) in Richard J. Vaccaro and Ahmed S. Zaki, "Reduced-Drift Virtual Gyro from an Array of Low-Cost Gyros".
 }
 \author{
 Davide Antonio Cucci

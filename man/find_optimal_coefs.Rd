@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions.R
 \name{find_optimal_coefs}
 \alias{find_optimal_coefs}
-\title{Estimated Optimal Coefficients based on Scale-wise Variance Optimization}
+\title{Estimate Optimal Coefficients based on Scale-wise Variance Optimization}
 \usage{
 find_optimal_coefs(Xt, scale_weights)
 }
@@ -15,8 +15,8 @@ find_optimal_coefs(Xt, scale_weights)
 A \code{vector} of the estimated optimal coefficients on the p individual processes.
 }
 \description{
-This function computes the estimated optimal coefficients based on the Scale-wise Variance Optimization approach proposed in Zhang et al. (2021).
-The detailed definition can be found in Equation (7) in Zhang et al. (2021) (link: [link](https://arxiv.org/abs/2106.15997)).
+This function computes the estimated optimal coefficients based on the Scale-wise Variance Optimization approach.
+The detailed definition can be found in Equation (7) in Zhang et al. (2021) (https://arxiv.org/abs/2106.15997).
 }
 \author{
 Yuming Zhang

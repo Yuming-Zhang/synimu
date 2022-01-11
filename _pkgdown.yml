@@ -3,13 +3,25 @@ template:
     bootswatch: flatly
 
 reference:
-  - title: Wavelet Cross-Covariance
+  - title: Scale-wise Variance Optimization
     contents:
     - wccv_local
     - find_optimal_coefs
     - get_virtual_gyro
-    - get_c_var
-
+    - est_cov
+  - title: Simulate Time Series Processes
+    contents:
+    - simulate_wn
+    - simulate_corr_rw
+    - simulate_corr_ar1
+  - title: Method of Richard J. Vaccaro and Ahmed S. Zaki (2017)
+    contents:
+    - find_optimal_coefs_vaccaro
+    - find_optimal_coefs_vaccaro_pinv
+    - av
+    - acov
+    - algorithm_1
+    - algorithm_2
 
 
 navbar:

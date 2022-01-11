@@ -16,10 +16,19 @@
     <loc>/index.html</loc>
   </url>
   <url>
+    <loc>/reference/acov.html</loc>
+  </url>
+  <url>
     <loc>/reference/algorithm_1.html</loc>
   </url>
   <url>
+    <loc>/reference/av.html</loc>
+  </url>
+  <url>
     <loc>/reference/d.wccv_RW.html</loc>
+  </url>
+  <url>
+    <loc>/reference/est_cov.html</loc>
   </url>
   <url>
     <loc>/reference/expect.wv_WN.html</loc>
@@ -40,7 +49,19 @@
     <loc>/reference/get_c_var.html</loc>
   </url>
   <url>
+    <loc>/reference/get_virtual_gyro.html</loc>
+  </url>
+  <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/simulate_corr_ar1.html</loc>
+  </url>
+  <url>
+    <loc>/reference/simulate_corr_rw.html</loc>
+  </url>
+  <url>
+    <loc>/reference/simulate_wn.html</loc>
   </url>
   <url>
     <loc>/reference/simulate_wn_ar1_corr_rw.html</loc>
