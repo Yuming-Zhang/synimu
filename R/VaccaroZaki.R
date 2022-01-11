@@ -34,20 +34,30 @@ find_optimal_coefs_vaccaro_pinv = function(Q, n) {
 }
 
 
+#' @title Empirical Allan variance
+#' @description This function provides an empirical estimate of the Allan variance given multiple processes,
+#' as defined in Richard J. Vaccaro and Ahmed S. Zaki, "Reduced-Drift Virtual Gyro from an Array of Low-Cost Gyros" [1], Equation 3
 #' @export
+#' @param Xt A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.
+#' @return A \code{list} with the following structure:
+#' \itemize{
+#'  \item variance: A \code{matrix} of the estimated Allan variance
+#'  \item scales: A \code{vector} of the employed levels (\eqn{N} in [1])
+#' }
+#' @author Davide Antonio Cucci
 
-av = function(X) {
-  J = floor(log2(length(X))) - 3
+av = function(Xt) {
+  J = floor(log2(length(Xt))) - 3
   scales = 2^(1:J)
 
   variance = rep(0, length(scales))
 
   for (is in 1:length(scales)) {
-    segs = seq(from=1, to=length(X), by=scales[is])
+    segs = seq(from=1, to=length(Xt), by=scales[is])
 
     segs_means = sapply( 1:(length(segs)-1),
                          function (iseg) {
-                           mean(X[segs[iseg]:(segs[iseg+1]-1)])
+                           mean(Xt[segs[iseg]:(segs[iseg+1]-1)])
                          })
 
     ds = diff(segs_means)^2
@@ -64,7 +74,17 @@ av = function(X) {
   )
 }
 
+#' @title Empirical Allan covariance
+#' @description This function provides an empirical estimate of the Allan covariance given multiple processes,
+#' as defined in Richard J. Vaccaro and Ahmed S. Zaki, "Reduced-Drift Virtual Gyro from an Array of Low-Cost Gyros" [1], Equation 23
 #' @export
+#' @param Xt A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.
+#' @return A \code{list} with the following structure:
+#' \itemize{
+#'  \item covariance: A \code{list} of \code{matrix} for each level \eqn{m} of the estimated Allan covariance
+#'  \item scales: A \code{vector} of the employed levels (\eqn{m} in [1])
+#' }
+#' @author Davide Antonio Cucci
 
 acov = function(X) {
   n_ts = dim(X)[2]
