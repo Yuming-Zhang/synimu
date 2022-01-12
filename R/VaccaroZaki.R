@@ -27,7 +27,7 @@ find_optimal_coefs_vaccaro = function(Q) {
 
   c = ( solve(Q) %*% o ) / (t(o) %*% solve(Q) %*% o)[1]
 
-  c
+  as.vector(c)
 }
 
 #' @title Estimate Optimal Coefficients based on Reduced-Drift Virtual Gyro
@@ -47,7 +47,7 @@ find_optimal_coefs_vaccaro_pinv = function(Q, n) {
 
   c = ( pinv %*% o ) / (t(o) %*% pinv %*% o)[1]
 
-  c
+  as.vector(c)
 }
 
 

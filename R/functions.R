@@ -9,6 +9,7 @@
 #'  \item ci_low: A \code{matrix} of the lower bound of the confidence interval of the estimated wavelet cross-covariance.
 #'  \item ci_high: A \code{matrix} of the upper bound of the confidence interval of the estimated wavelet cross-covariance.
 #' }
+#' @importFrom wv wvar modwt
 #' @author Haotian Xu
 
 wccv_local = function(Xt){

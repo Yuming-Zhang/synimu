@@ -23,6 +23,7 @@ simulate_wn = function(N, sigma_wn) {
 #' @param N An \code{integer} indicating the length of the time series.
 #' @param sigma_rw A \code{matrix} denoting the covariance of the random walk innovations.
 #' @return A \code{matrix} of the simulated correlated random walk processes.
+#' @importFrom MASS mvrnorm
 #' @author Davide Antonio Cucci
 
 simulate_corr_rw = function(N, sigma_rw) {
@@ -47,6 +48,7 @@ simulate_corr_rw = function(N, sigma_rw) {
 #' @param phi_ar1 A \code{vector} indicating the phi terms of the AR(1) processes.
 #' @param sigma_ar1 A \code{matrix} denoting the covariance of the AR(1) innovations.
 #' @return A \code{matrix} of the simulated correlated AR(1) processes.
+#' @importFrom MASS mvrnorm
 #' @author Davide Antonio Cucci
 
 simulate_corr_ar1 = function(N, phi_ar1, sigma_ar1) {
