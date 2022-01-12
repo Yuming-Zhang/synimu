@@ -94,6 +94,7 @@ weights = exp(tau-13)/(1 + exp(tau-13))
 weights = weights/sum(weights)
 
 c_svo = find_optimal_coefs(Xt, weights)
+c_svo
 ```
 
 As a comparison, we also compute the optimal coefficients according to the method presented in @s17020352, which can be calculated as follows:
@@ -104,6 +105,7 @@ Q_hat = algorithm_2(Xt)$Q
 
 # Compute the coefficients
 c_vaccarozaki = find_optimal_coefs_vaccaro(Q_hat)
+c_vaccarozaki
 ```
 
 The results can be seen in the following plot. In this case, since the assumed model for the simulated gyroscopes satisfies the parametric assumptions in @s17020352, the results of both approaches are mostly similar.
@@ -159,15 +161,21 @@ Xt = simulate_wn(N, sigma_wn) +
 
 We again estimate the coefficients for the virtual gyroscopes with the SVO approach and the method proposed in @s17020352 and compare the results. In this case, SVO, which does not rely on any parametric assumption on the underlying stochastic processes, achieves better results.
 
-```{r, fig.width = 7, fig.height = 10, cache = TRUE}
+```{r, cache = TRUE}
 c_svo = find_optimal_coefs(Xt, weights)
+c_svo
+```
 
+```{r, cache = TRUE}
 # Estimate the Q matrix (the covariance of the Random Walk innovations)
 Q_hat = algorithm_2(Xt)$Q
 
 # Compute the coefficients
 c_vaccarozaki = find_optimal_coefs_vaccaro(Q_hat)
+c_vaccarozaki
+```
 
+```{r, fig.width = 7, fig.height = 10}
 plot_virtual_gyro(Xt, c_svo, c_vaccarozaki, names = c("SVO", "VaccaroZaki"))
 ```
 
