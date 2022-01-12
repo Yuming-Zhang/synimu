@@ -7,10 +7,10 @@
 find_optimal_coefs_vaccaro(Q)
 }
 \arguments{
-\item{Q}{\code{matrix} of size \eqn{p} by \eqn{p} specifying the covariance of the Random Walk innovation.}
+\item{Q}{A \code{matrix} of size \eqn{p} by \eqn{p} specifying the covariance of the random walk innovation.}
 }
 \value{
-c \code{vector} of coefficients.
+c A \code{vector} of coefficients.
 }
 \description{
 This function computes the optimal coefficients for a linear combination of \eqn{p} gyroscopes according to

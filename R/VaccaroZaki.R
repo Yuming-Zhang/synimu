@@ -18,8 +18,8 @@ partial_inv <- function(A, n) {
 #' @description This function computes the optimal coefficients for a linear combination of \eqn{p} gyroscopes according to
 #' Equation (43) in Richard J. Vaccaro and Ahmed S. Zaki, "Reduced-Drift Virtual Gyro from an Array of Low-Cost Gyros".
 #' @export
-#' @param Q \code{matrix} of size \eqn{p} by \eqn{p} specifying the covariance of the Random Walk innovation.
-#' @return c \code{vector} of coefficients.
+#' @param Q A \code{matrix} of size \eqn{p} by \eqn{p} specifying the covariance of the random walk innovation.
+#' @return c A \code{vector} of coefficients.
 #' @author Davide Antonio Cucci
 
 find_optimal_coefs_vaccaro = function(Q) {
@@ -35,9 +35,9 @@ find_optimal_coefs_vaccaro = function(Q) {
 #' Equation (43) in Richard J. Vaccaro and Ahmed S. Zaki, "Reduced-Drift Virtual Gyro from an Array of Low-Cost Gyros", where
 #' \eqn{Q^{-1}} is replaced by the pseudo-inverse of \eqn{Q}, ignoring \eqn{n} singular values, as suggested in Equation (54).
 #' @export
-#' @param Q \code{matrix} of size \eqn{p} by \eqn{p} specifying the covariance of the Random Walk innovation.
-#' @param n the number of singular values to ignore in the calculation of the pseudo-inverse of \eqn{Q}.
-#' @return c \code{vector} of coefficients.
+#' @param Q A \code{matrix} of size \eqn{p} by \eqn{p} specifying the covariance of the random walk innovation.
+#' @param n An \code{integer} indicating the number of singular values to ignore in the calculation of the pseudo-inverse of \eqn{Q}.
+#' @return c A \code{vector} of coefficients.
 #' @author Davide Antonio Cucci
 
 find_optimal_coefs_vaccaro_pinv = function(Q, n) {
@@ -58,8 +58,9 @@ find_optimal_coefs_vaccaro_pinv = function(Q, n) {
 #' @param Xt A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.
 #' @return A \code{list} with the following structure:
 #' \itemize{
-#'  \item variance: A \code{matrix} of the estimated Allan variance
-#'  \item scales: A \code{vector} of the employed levels (\eqn{N} in [1])
+#'  \item J: An \code{integer} indicating the maximum level.
+#'  \item scales: A \code{vector} of the employed levels (\eqn{N} in [1]).
+#'  \item variance: A \code{matrix} of the estimated Allan variance.
 #' }
 #' @author Davide Antonio Cucci
 
@@ -98,11 +99,12 @@ av = function(Xt) {
 #' @param Xt A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.
 #' @return A \code{list} with the following structure:
 #' \itemize{
-#'  \item covariance: A \code{list} of \code{matrix} for each level \eqn{m} of the estimated Allan covariance
-#'  \item scales: A \code{vector} of the employed levels (\eqn{m} in [1])
+#'  \item J: An \code{integer} indicating the maximum level.
+#'  \item scales: A \code{vector} of the employed levels (\eqn{m} in [1]).
+#'  \item covariance: A \code{list} of \code{matrix} for each level \eqn{m} of the estimated Allan covariance.
 #' }
 #' @author Davide Antonio Cucci
-#'
+
 acov = function(X) {
   n_ts = dim(X)[2]
   N = dim(X)[1]
@@ -216,15 +218,15 @@ CCQ = function(Q1, Q2, Q12, N, scales) {
   ccq
 }
 
-#' @title Estimation of white noise and random walk innovation variances \eqn{R} and \eqn{Q}
-#' @description This function provides an estimator based on the Allan variance for the white noise and the random walk innovation variances \eqn{R} and \eqn{Q}
+#' @title Estimation of White Noise and Random Walk Innovation Variances \eqn{R} and \eqn{Q}
+#' @description This function provides an estimate based on the Allan variance for the white noise and the random walk innovation variances \eqn{R} and \eqn{Q}.
 #' The implementation reflects Algorithm 1 in Richard J. Vaccaro and Ahmed S. Zaki, "Reduced-Drift Virtual Gyro from an Array of Low-Cost Gyros".
 #' @export
 #' @param X A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.
 #' @return A \code{list} with the following structure:
 #' \itemize{
-#'  \item R: A \code{vector} of size p of the estimated white noise variances
-#'  \item Q: A \code{vector} of size p of the estimated random walk innovation variances
+#'  \item R: A \code{vector} of size p of the estimated white noise variances.
+#'  \item Q: A \code{vector} of size p of the estimated random walk innovation variances.
 #' }
 #' @author Davide Antonio Cucci
 
@@ -278,15 +280,15 @@ algorithm_1_ms = function(X) {
 
 }
 
-#' @title Estimation of white noise and random walk innovation covariances \eqn{R} and \eqn{Q}
-#' @description This function provides an estimator based on the Allan variance for the white noise and the random walk innovation covariances \eqn{R} and \eqn{Q}
+#' @title Estimation of White Noise and Random Walk Innovation Covariances \eqn{R} and \eqn{Q}
+#' @description This function provides an estimate based on the Allan variance for the white noise and the random walk innovation covariances \eqn{R} and \eqn{Q}.
 #' The implementation reflects Algorithm 2 in Richard J. Vaccaro and Ahmed S. Zaki, "Reduced-Drift Virtual Gyro from an Array of Low-Cost Gyros".
 #' @export
 #' @param X A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.
 #' @return A \code{list} with the following structure:
 #' \itemize{
-#'  \item R: A \code{vector} of size p of the estimated white noise variances
-#'  \item Q: A \code{matrix} of size p by p of the estimated random walk innovation covariance
+#'  \item R: A \code{vector} of size p of the estimated white noise variances.
+#'  \item Q: A \code{matrix} of size p by p of the estimated random walk innovation covariance.
 #' }
 #' @author Davide Antonio Cucci
 

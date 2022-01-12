@@ -3,12 +3,12 @@ gg_color_hue <- function(n, alpha) {
   hcl(h = hues, l = 65, c = 100, alpha = alpha)[1:n]
 }
 
-#' @title Wavelet Variance plot for virtual gyroscopes
+#' @title Wavelet Variance Plot for Virtual Gyroscopes
 #' @description This function plots the wavelet variance of the obtained virtual gyroscopes with the provided coefficients
 #' @export
 #' @param Xt A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.
-#' @param ... multiple \code{vector} of coefficients
-#' @param names A \code{vector} of strings to be used for the legend
+#' @param ... Multiple \code{vector} of coefficients.
+#' @param names A \code{vector} of strings to be used for the legend.
 #' @importFrom wv wvar
 #' @author Davide Antonio Cucci
 plot_virtual_gyro <- function(Xt, ..., names) {

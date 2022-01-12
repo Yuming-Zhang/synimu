@@ -12,8 +12,9 @@ av(Xt)
 \value{
 A \code{list} with the following structure:
 \itemize{
- \item variance: A \code{matrix} of the estimated Allan variance
- \item scales: A \code{vector} of the employed levels (\eqn{N} in [1])
+ \item J: An \code{integer} indicating the maximum level.
+ \item scales: A \code{vector} of the employed levels (\eqn{N} in [1]).
+ \item variance: A \code{matrix} of the estimated Allan variance.
 }
 }
 \description{

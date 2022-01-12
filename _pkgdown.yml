@@ -9,6 +9,7 @@ reference:
     - find_optimal_coefs
     - get_virtual_gyro
     - est_cov
+    - plot_virtual_gyro
   - title: Simulate Time Series Processes
     contents:
     - simulate_wn

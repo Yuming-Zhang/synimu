@@ -7,12 +7,12 @@
 find_optimal_coefs_vaccaro_pinv(Q, n)
 }
 \arguments{
-\item{Q}{\code{matrix} of size \eqn{p} by \eqn{p} specifying the covariance of the Random Walk innovation.}
+\item{Q}{A \code{matrix} of size \eqn{p} by \eqn{p} specifying the covariance of the random walk innovation.}
 
-\item{n}{the number of singular values to ignore in the calculation of the pseudo-inverse of \eqn{Q}.}
+\item{n}{An \code{integer} indicating the number of singular values to ignore in the calculation of the pseudo-inverse of \eqn{Q}.}
 }
 \value{
-c \code{vector} of coefficients.
+c A \code{vector} of coefficients.
 }
 \description{
 This function computes the optimal coefficients for a linear combination of \eqn{p} gyroscopes according to

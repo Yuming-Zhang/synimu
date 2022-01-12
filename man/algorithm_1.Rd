@@ -2,7 +2,7 @@
 % Please edit documentation in R/VaccaroZaki.R
 \name{algorithm_1}
 \alias{algorithm_1}
-\title{Estimation of white noise and random walk innovation variances \eqn{R} and \eqn{Q}}
+\title{Estimation of White Noise and Random Walk Innovation Variances \eqn{R} and \eqn{Q}}
 \usage{
 algorithm_1(X)
 }
@@ -12,12 +12,12 @@ algorithm_1(X)
 \value{
 A \code{list} with the following structure:
 \itemize{
- \item R: A \code{vector} of size p of the estimated white noise variances
- \item Q: A \code{vector} of size p of the estimated random walk innovation variances
+ \item R: A \code{vector} of size p of the estimated white noise variances.
+ \item Q: A \code{vector} of size p of the estimated random walk innovation variances.
 }
 }
 \description{
-This function provides an estimator based on the Allan variance for the white noise and the random walk innovation variances \eqn{R} and \eqn{Q}
+This function provides an estimate based on the Allan variance for the white noise and the random walk innovation variances \eqn{R} and \eqn{Q}.
 The implementation reflects Algorithm 1 in Richard J. Vaccaro and Ahmed S. Zaki, "Reduced-Drift Virtual Gyro from an Array of Low-Cost Gyros".
 }
 \author{

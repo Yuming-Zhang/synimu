@@ -12,8 +12,9 @@ acov(X)
 \value{
 A \code{list} with the following structure:
 \itemize{
- \item covariance: A \code{list} of \code{matrix} for each level \eqn{m} of the estimated Allan covariance
- \item scales: A \code{vector} of the employed levels (\eqn{m} in [1])
+ \item J: An \code{integer} indicating the maximum level.
+ \item scales: A \code{vector} of the employed levels (\eqn{m} in [1]).
+ \item covariance: A \code{list} of \code{matrix} for each level \eqn{m} of the estimated Allan covariance.
 }
 }
 \description{

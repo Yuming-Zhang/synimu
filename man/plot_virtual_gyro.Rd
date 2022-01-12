@@ -2,16 +2,16 @@
 % Please edit documentation in R/plotting.R
 \name{plot_virtual_gyro}
 \alias{plot_virtual_gyro}
-\title{Wavelet Variance plot for virtual gyroscopes}
+\title{Wavelet Variance Plot for Virtual Gyroscopes}
 \usage{
 plot_virtual_gyro(Xt, ..., names)
 }
 \arguments{
 \item{Xt}{A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.}
 
-\item{...}{multiple \code{vector} of coefficients}
+\item{...}{Multiple \code{vector} of coefficients.}
 
-\item{names}{A \code{vector} of strings to be used for the legend}
+\item{names}{A \code{vector} of strings to be used for the legend.}
 }
 \description{
 This function plots the wavelet variance of the obtained virtual gyroscopes with the provided coefficients
