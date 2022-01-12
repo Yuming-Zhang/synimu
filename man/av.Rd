@@ -12,9 +12,8 @@ av(Xt)
 \value{
 A \code{list} with the following structure:
 \itemize{
- \item J TO COMPLETE
- \item scales TO COMPLETE
- \item variance TO COMPLETE
+ \item variance: A \code{matrix} of the estimated Allan variance
+ \item scales: A \code{vector} of the employed levels (\eqn{N} in [1])
 }
 }
 \description{
