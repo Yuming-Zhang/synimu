@@ -13,9 +13,9 @@ vignette: >
 In @zhang2021scalewise, we introduce a method allowing to compute synthetic (or average) signals issued from multiple correlated and/or even non-stationary signals. In a nutshell, this method minimizes a weighted average of the wavelet variance of the synthetic signal whose weights can be chosen depending on the application at hand. This method is illustrated with gyroscopes which often contain non-stationary processes such as random walks. This package implements the method of @zhang2021scalewise, called Scale-wise Variance Optimization or SVO, as well as the approach of @s17020352, which is used as a comparison.
 
 
-# Example usage
+# Real Gyroscope Data Analysis
 
-We consider the example presented in @zhang2021scalewise, where a virtual gyroscope is created fusing 12 real MEMS from two device families, InvenSense
+We consider the real gyroscope data considered in @zhang2021scalewise, where a virtual gyroscope is created by fusing 12 real MEMS from two device families, InvenSense
 ICM-20689 and Bosch BMI055. The employed data is included in the package and can be loaded as follows:
 
 ```{r}
@@ -27,7 +27,7 @@ data(ICM20689)
 Xt = cbind(ICM20689, BMI055)
 ```
 
-We first need to chose which scales we would like to minimize in the Wavelet Variance plot. In SVO, this is obtained choosing weights $\omega$ such that $\sum{\omega} = 1$. For example, if one is interested in minimizing the high scales of the wavelet variance, suitable weights can be obtained as follows:
+We first need to choose which scales we would like to minimize in the wavelet variance plot. In the SVO proposed in @zhang2021scalewise, this is obtained by choosing non-negative weights on the scales that sum to one. For example, if one is interested in minimizing the large scales of the wavelet variance, suitable weights can be obtained as follows:
 
 ```{r, fig.width = 7}
 
@@ -42,26 +42,27 @@ plot(tau, weights, xlab = "Wavelet variance scales", ylab = "Weight", type = "l"
 ```
 
 
-Once weights have been defined, one can obtain the coefficients to be used in the linear combination of single gyroscope as follows:
+Once the weights on scales have been specified, one can obtain the coefficients to be used in the linear combination of single gyroscope signals as follows:
 
 ```{r, cache = TRUE}
 c_hat = find_optimal_coefs(Xt, weights)
+c_hat
 ```
 
-The obtained virtual gyroscope can be compared with what would be obtained using equal coefficients using the conveninence 'plot_virtual_gyro' function:
+The obtained virtual gyroscope can be compared with what would be obtained with equal coefficients using the "plot_virtual_gyro" function:
 
 ```{r, fig.width = 7, fig.height = 10, cache = TRUE}
 plot_virtual_gyro(Xt, c_hat, names = "SVO")
 ```
 
 
-# Simulated data
+# Simulation Studies
 
-In the following we will provide the instructions to reproduce the Monte-Carlo simulations presented in @zhang2021scalewise, Section V.A and V.B
+In this section we will provide the instructions on how to reproduce the Monte-Carlo simulations presented in @zhang2021scalewise.
 
-## White Noise plus Random Walk
+## White Noise + Random Walk
 
-In this section we simulate data for six gyroscopes whose noise error model is composed by a White Noise and a Random Walk (with correlated innovations), as in @zhang2021scalewise, Equation (11)
+In this section we simulate data for six gyroscopes whose noise error model is composed by a white noise and a random walk (with correlated innovations), as in Equation (11) in @zhang2021scalewise.
 
 ```{r}
 # definition of the noise parameters
@@ -83,7 +84,7 @@ set.seed(1)
 Xt = simulate_wn(N, sigma_wn) + simulate_corr_rw(N, sigma_rw)
 ```
 
-We define weights in order to minimizie the highest scales of the Wavelet Variance and we compute the coefficients according to SVO:
+We define weights in order to minimize the largest scales of the wavelet variance and we compute the coefficients with the approach of SVO:
 
 ```{r, cache = TRUE}
 n_scales = log2( N ) - 1
@@ -95,7 +96,7 @@ weights = weights/sum(weights)
 c_svo = find_optimal_coefs(Xt, weights)
 ```
 
-As a comparison, we also compute the optimal coefficients according to the method presented in @s17020352. Those can be calculated as follows:
+As a comparison, we also compute the optimal coefficients according to the method presented in @s17020352, which can be calculated as follows:
 
 ```{r, cache = TRUE}
 # Estimate the Q matrix (the covariance of the Random Walk innovations)
@@ -105,15 +106,15 @@ Q_hat = algorithm_2(Xt)$Q
 c_vaccarozaki = find_optimal_coefs_vaccaro(Q_hat)
 ```
 
-The results can be seen in the following plot. In this case, since the assumed model for the simulated gyroscopes satisfies the parametric assumptions in @s17020352, the results are mostly similar.
+The results can be seen in the following plot. In this case, since the assumed model for the simulated gyroscopes satisfies the parametric assumptions in @s17020352, the results of both approaches are mostly similar.
 
 ```{r, fig.width = 7, fig.height = 10, cache = TRUE}
 plot_virtual_gyro(Xt, c_svo, c_vaccarozaki, names = c("SVO", "VaccaroZaki"))
 ```
 
-## White Noise plus three correlated first-order autoregressive processes
+## White Noise + 3 correlated AR(1)
 
-In this example we simulate data for six gyroscopes whose noise error model is composed by a White Noise and three first-order Auto-regressive processes (with correlated innovations), as in @zhang2021scalewise, Equation (14)
+In this example we simulate data for six gyroscopes whose noise error model is composed by a white noise and three first-order auto-regressive processes (with correlated innovations), as in Equation (14) in @zhang2021scalewise.
 
 ```{r, cache = TRUE}
 phi_ar1_1 = rep(0.9998705, 6)
@@ -156,7 +157,7 @@ Xt = simulate_wn(N, sigma_wn) +
   simulate_corr_ar1(N, phi_ar1_3, sigma_ar1_3)
 ```
 
-We again estimate the coefficients for the virtual gyroscopes with SVO and the method proposed in @s17020352 and compare the results. In this case, SVO, which does not rely on any parametric assumption on the underlying stochastic processes, achieves better results.
+We again estimate the coefficients for the virtual gyroscopes with the SVO approach and the method proposed in @s17020352 and compare the results. In this case, SVO, which does not rely on any parametric assumption on the underlying stochastic processes, achieves better results.
 
 ```{r, fig.width = 7, fig.height = 10, cache = TRUE}
 c_svo = find_optimal_coefs(Xt, weights)

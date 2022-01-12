@@ -49,7 +49,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/Yuming-Zhang/synimu" class="external-link">
-    <span class="fas fa-github"></span>
+    <span class="fa fa-github"></span>
      
   </a>
 </li>
@@ -63,7 +63,7 @@
 
       
 
-      </header><script src="vignettes_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>
@@ -79,9 +79,9 @@
     
 <p>In <span class="citation">Zhang et al. (2021)</span>, we introduce a method allowing to compute synthetic (or average) signals issued from multiple correlated and/or even non-stationary signals. In a nutshell, this method minimizes a weighted average of the wavelet variance of the synthetic signal whose weights can be chosen depending on the application at hand. This method is illustrated with gyroscopes which often contain non-stationary processes such as random walks. This package implements the method of <span class="citation">Zhang et al. (2021)</span>, called Scale-wise Variance Optimization or SVO, as well as the approach of <span class="citation">Vaccaro and Zaki (2017)</span>, which is used as a comparison.</p>
 <div class="section level1">
-<h1 id="example-usage">Example usage<a class="anchor" aria-label="anchor" href="#example-usage"></a>
+<h1 id="real-gyroscope-data-analysis">Real Gyroscope Data Analysis<a class="anchor" aria-label="anchor" href="#real-gyroscope-data-analysis"></a>
 </h1>
-<p>We consider the example presented in <span class="citation">Zhang et al. (2021)</span>, where a virtual gyroscope is created fusing 12 real MEMS from two device families, InvenSense ICM-20689 and Bosch BMI055. The employed data is included in the package and can be loaded as follows:</p>
+<p>We consider the real gyroscope data considered in <span class="citation">Zhang et al. (2021)</span>, where a virtual gyroscope is created by fusing 12 real MEMS from two device families, InvenSense ICM-20689 and Bosch BMI055. The employed data is included in the package and can be loaded as follows:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/Yuming-Zhang/synimu" class="external-link">synimu</a></span><span class="op">)</span>
 
@@ -89,7 +89,7 @@
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">ICM20689</span><span class="op">)</span>
 
 <span class="va">Xt</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">ICM20689</span>, <span class="va">BMI055</span><span class="op">)</span></code></pre></div>
-<p>We first need to chose which scales we would like to minimize in the Wavelet Variance plot. In SVO, this is obtained choosing weights <span class="math inline">\(\omega\)</span> such that <span class="math inline">\(\sum{\omega} = 1\)</span>. For example, if one is interested in minimizing the high scales of the wavelet variance, suitable weights can be obtained as follows:</p>
+<p>We first need to choose which scales we would like to minimize in the wavelet variance plot. In the SVO proposed in <span class="citation">Zhang et al. (2021)</span>, this is obtained by choosing non-negative weights on the scales that sum to one. For example, if one is interested in minimizing the large scales of the wavelet variance, suitable weights can be obtained as follows:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">n_scales</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">Xt</span><span class="op">)</span> <span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>
 <span class="va">tau</span> <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">n_scales</span>
@@ -99,23 +99,26 @@
 
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tau</span>, <span class="va">weights</span>, xlab <span class="op">=</span> <span class="st">"Wavelet variance scales"</span>, ylab <span class="op">=</span> <span class="st">"Weight"</span>, type <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></code></pre></div>
 <p><img src="vignettes_files/figure-html/unnamed-chunk-2-1.png" width="672"></p>
-<p>Once weights have been defined, one can obtain the coefficients to be used in the linear combination of single gyroscope as follows:</p>
+<p>Once the weights on scales have been specified, one can obtain the coefficients to be used in the linear combination of single gyroscope signals as follows:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">c_hat</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs.html">find_optimal_coefs</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">weights</span><span class="op">)</span></code></pre></div>
-<p>The obtained virtual gyroscope can be compared with what would be obtained using equal coefficients using the conveninence ‘plot_virtual_gyro’ function:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">c_hat</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs.html">find_optimal_coefs</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">weights</span><span class="op">)</span>
+<span class="va">c_hat</span></code></pre></div>
+<pre><code><span class="co">##  [1] 0.043489268 0.016530619 0.029687293 0.103975706 0.069757839 0.219428143</span>
+<span class="co">##  [7] 0.005264892 0.035700749 0.173090431 0.016060061 0.112651638 0.174363362</span></code></pre>
+<p>The obtained virtual gyroscope can be compared with what would be obtained with equal coefficients using the “plot_virtual_gyro” function:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_virtual_gyro.html">plot_virtual_gyro</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">c_hat</span>, names <span class="op">=</span> <span class="st">"SVO"</span><span class="op">)</span></code></pre></div>
 <p><img src="vignettes_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
 </div>
 <div class="section level1">
-<h1 id="simulated-data">Simulated data<a class="anchor" aria-label="anchor" href="#simulated-data"></a>
+<h1 id="simulation-studies">Simulation Studies<a class="anchor" aria-label="anchor" href="#simulation-studies"></a>
 </h1>
-<p>In the following we will provide the instructions to reproduce the Monte-Carlo simulations presented in <span class="citation">Zhang et al. (2021)</span>, Section V.A and V.B</p>
+<p>In this section we will provide the instructions on how to reproduce the Monte-Carlo simulations presented in <span class="citation">Zhang et al. (2021)</span>.</p>
 <div class="section level2">
-<h2 id="white-noise-plus-random-walk">White Noise plus Random Walk<a class="anchor" aria-label="anchor" href="#white-noise-plus-random-walk"></a>
+<h2 id="white-noise-random-walk">White Noise + Random Walk<a class="anchor" aria-label="anchor" href="#white-noise-random-walk"></a>
 </h2>
-<p>In this section we simulate data for six gyroscopes whose noise error model is composed by a White Noise and a Random Walk (with correlated innovations), as in <span class="citation">Zhang et al. (2021)</span>, Equation (11)</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p>In this section we simulate data for six gyroscopes whose noise error model is composed by a white noise and a random walk (with correlated innovations), as in Equation (11) in <span class="citation">Zhang et al. (2021)</span>.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># definition of the noise parameters</span>
 
 <span class="va">sigma_wn</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.805556e-07</span>, <span class="fl">1.977778e-07</span>, <span class="fl">1.361111e-07</span>, <span class="fl">1.063889e-07</span>, <span class="fl">1.069444e-07</span>, <span class="fl">2.538889e-07</span><span class="op">)</span>
@@ -133,8 +136,8 @@
 
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
 <span class="va">Xt</span> <span class="op">=</span> <span class="fu"><a href="../reference/simulate_wn.html">simulate_wn</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">sigma_wn</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="../reference/simulate_corr_rw.html">simulate_corr_rw</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">sigma_rw</span><span class="op">)</span></code></pre></div>
-<p>We define weights in order to minimizie the highest scales of the Wavelet Variance and we compute the coefficients according to SVO:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p>We define weights in order to minimize the largest scales of the wavelet variance and we compute the coefficients with the approach of SVO:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">n_scales</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span> <span class="va">N</span> <span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>
 <span class="va">tau</span> <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">n_scales</span>
 
@@ -142,23 +145,23 @@
 <span class="va">weights</span> <span class="op">=</span> <span class="va">weights</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span>
 
 <span class="va">c_svo</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs.html">find_optimal_coefs</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">weights</span><span class="op">)</span></code></pre></div>
-<p>As a comparison, we also compute the optimal coefficients according to the method presented in <span class="citation">Vaccaro and Zaki (2017)</span>. Those can be calculated as follows:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<p>As a comparison, we also compute the optimal coefficients according to the method presented in <span class="citation">Vaccaro and Zaki (2017)</span>, which can be calculated as follows:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Estimate the Q matrix (the covariance of the Random Walk innovations)</span>
 <span class="va">Q_hat</span> <span class="op">=</span> <span class="fu"><a href="../reference/algorithm_2.html">algorithm_2</a></span><span class="op">(</span><span class="va">Xt</span><span class="op">)</span><span class="op">$</span><span class="va">Q</span>
 
 <span class="co"># Compute the coefficients</span>
 <span class="va">c_vaccarozaki</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs_vaccaro.html">find_optimal_coefs_vaccaro</a></span><span class="op">(</span><span class="va">Q_hat</span><span class="op">)</span></code></pre></div>
-<p>The results can be seen in the following plot. In this case, since the assumed model for the simulated gyroscopes satisfies the parametric assumptions in <span class="citation">Vaccaro and Zaki (2017)</span>, the results are mostly similar.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<p>The results can be seen in the following plot. In this case, since the assumed model for the simulated gyroscopes satisfies the parametric assumptions in <span class="citation">Vaccaro and Zaki (2017)</span>, the results of both approaches are mostly similar.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_virtual_gyro.html">plot_virtual_gyro</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">c_svo</span>, <span class="va">c_vaccarozaki</span>, names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SVO"</span>, <span class="st">"VaccaroZaki"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="vignettes_files/figure-html/unnamed-chunk-8-1.png" width="672"></p>
 </div>
 <div class="section level2">
-<h2 id="white-noise-plus-three-correlated-first-order-autoregressive-processes">White Noise plus three correlated first-order autoregressive processes<a class="anchor" aria-label="anchor" href="#white-noise-plus-three-correlated-first-order-autoregressive-processes"></a>
+<h2 id="white-noise-3-correlated-ar1">White Noise + 3 correlated AR(1)<a class="anchor" aria-label="anchor" href="#white-noise-3-correlated-ar1"></a>
 </h2>
-<p>In this example we simulate data for six gyroscopes whose noise error model is composed by a White Noise and three first-order Auto-regressive processes (with correlated innovations), as in <span class="citation">Zhang et al. (2021)</span>, Equation (14)</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<p>In this example we simulate data for six gyroscopes whose noise error model is composed by a white noise and three first-order auto-regressive processes (with correlated innovations), as in Equation (14) in <span class="citation">Zhang et al. (2021)</span>.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">phi_ar1_1</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.9998705</span>, <span class="fl">6</span><span class="op">)</span>
 
 <span class="va">sigma_ar1_1</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>
@@ -197,8 +200,8 @@
   <span class="fu"><a href="../reference/simulate_corr_ar1.html">simulate_corr_ar1</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">phi_ar1_1</span>, <span class="va">sigma_ar1_1</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu"><a href="../reference/simulate_corr_ar1.html">simulate_corr_ar1</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">phi_ar1_2</span>, <span class="va">sigma_ar1_2</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu"><a href="../reference/simulate_corr_ar1.html">simulate_corr_ar1</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">phi_ar1_3</span>, <span class="va">sigma_ar1_3</span><span class="op">)</span></code></pre></div>
-<p>We again estimate the coefficients for the virtual gyroscopes with SVO and the method proposed in <span class="citation">Vaccaro and Zaki (2017)</span> and compare the results. In this case, SVO, which does not rely on any parametric assumption on the underlying stochastic processes, achieves better results.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<p>We again estimate the coefficients for the virtual gyroscopes with the SVO approach and the method proposed in <span class="citation">Vaccaro and Zaki (2017)</span> and compare the results. In this case, SVO, which does not rely on any parametric assumption on the underlying stochastic processes, achieves better results.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">c_svo</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs.html">find_optimal_coefs</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">weights</span><span class="op">)</span>
 
 <span class="co"># Estimate the Q matrix (the covariance of the Random Walk innovations)</span>
@@ -212,14 +215,14 @@
 </div>
 </div>
 <div class="section level1 unnumbered">
-<h1 id="bibliography">Bibliography<a class="anchor" aria-label="anchor" href="#bibliography"></a>
+<h1 class="unnumbered" id="bibliography">Bibliography<a class="anchor" aria-label="anchor" href="#bibliography"></a>
 </h1>
-<div id="refs" class="references">
-<div id="ref-s17020352">
-<p>Vaccaro, Richard J., and Ahmed S. Zaki. 2017. “Reduced-Drift Virtual Gyro from an Array of Low-Cost Gyros.” <em>Sensors</em> 17 (2). <a href="https://doi.org/10.3390/s17020352" class="external-link">https://doi.org/10.3390/s17020352</a>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-s17020352" class="csl-entry">
+Vaccaro, Richard J., and Ahmed S. Zaki. 2017. <span>“Reduced-Drift Virtual Gyro from an Array of Low-Cost Gyros.”</span> <em>Sensors</em> 17 (2). <a href="https://doi.org/10.3390/s17020352" class="external-link">https://doi.org/10.3390/s17020352</a>.
 </div>
-<div id="ref-zhang2021scalewise">
-<p>Zhang, Yuming, Davide A. Cucci, Roberto Molinari, and Stéphane Guerrier. 2021. “Scale-Wise Variance Minimization for Optimal Virtual Signals: An Approach for Redundant Gyroscopes.” <a href="http://arxiv.org/abs/2106.15997" class="external-link">http://arxiv.org/abs/2106.15997</a>.</p>
+<div id="ref-zhang2021scalewise" class="csl-entry">
+Zhang, Yuming, Davide A. Cucci, Roberto Molinari, and Stéphane Guerrier. 2021. <span>“Scale-Wise Variance Minimization for Optimal Virtual Signals: An Approach for Redundant Gyroscopes.”</span> <a href="http://arxiv.org/abs/2106.15997" class="external-link">http://arxiv.org/abs/2106.15997</a>.
 </div>
 </div>
 </div>
