@@ -65,6 +65,7 @@ plot_virtual_gyro <- function(Xt, ..., names) {
 
   ylr = sapply(ratios, function (x) {c(max(x), min(x))})
   ylr = c(min(ylr[2,]),max(ylr[1,]))*c(1,2)
+  ylr = c(10^floor(log10(ylr[1])), 10^ceiling(log10(ylr[2])))
 
   cols = gg_color_hue(length(coeffs))
   colsa = gg_color_hue(length(coeffs), 0x20/256)
@@ -82,7 +83,9 @@ plot_virtual_gyro <- function(Xt, ..., names) {
   axis(1, at=10^xlogs, label= sapply(xlogs, function(i) as.expression(bquote(10^ .(i)))))
 
   ylogs = -20:20
+  ylogs2 = seq(-20,20,.1)
   axis(2, at=10^ylogs, label = sapply(ylogs, function(i) as.expression(bquote(10^ .(i)))))
+  axis(2, at=10^ylogs2, label = FALSE, lwd=0.5)
 
   abline(h=10^ylogs, v=10^xlogs, col = "grey", lt=2)
 
