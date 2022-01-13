@@ -71,16 +71,16 @@ plot_virtual_gyro <- function(Xt, ..., names) {
   colsa = gg_color_hue(length(coeffs), 0x20/256)
 
   layout(matrix(c(1,2), nrow=2, ncol=1), heights=c(2.5,4))
-  par(mar = c(2.5, 4.5, 1, 0.5))
+  par(mar = c(0.5, 4.5, 1, 0.5))
 
   # plot ratios
 
-  plot(NA, xlim = xl, ylim = ylr, log = "xy", xlab = "Scales", ylab = "Ratio wrt Equal", xaxt = "n", yaxt="n")
+  plot(NA, xlim = xl, ylim = ylr, log = "xy", xlab = NA, ylab = "Ratio wrt Equal", xaxt = "n", yaxt="n")
 
   # fix axis
 
   xlogs = 0:30
-  axis(1, at=10^xlogs, label= sapply(xlogs, function(i) as.expression(bquote(10^ .(i)))))
+  # axis(1, at=10^xlogs, label= sapply(xlogs, function(i) as.expression(bquote(10^ .(i)))))
 
   ylogs = -20:20
   ylogs2 = seq(-20,20,.1)
@@ -98,7 +98,8 @@ plot_virtual_gyro <- function(Xt, ..., names) {
 
   # plot wvs
 
-  plot(NA, xlim = xl, ylim = yl, log = "xy", xlab = "Scales", ylab = "Wavelet Variance", xaxt = "n", yaxt = "n")
+  par(mar = c(4.5, 4.5, 1, 0.5))
+  plot(NA, xlim = xl, ylim = yl, log = "xy", xlab = "Scales [samples]", ylab = "Wavelet Variance", xaxt = "n", yaxt = "n")
 
   # fix axis
 
