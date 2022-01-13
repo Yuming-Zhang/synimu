@@ -3,6 +3,10 @@ template:
     bootswatch: flatly
 
 reference:
+  - title: Gyroscope Dataset
+    contents:
+    - BMI055
+    - ICM20689
   - title: Scale-wise Variance Optimization
     contents:
     - wccv_local

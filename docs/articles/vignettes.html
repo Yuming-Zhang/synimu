@@ -49,7 +49,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/Yuming-Zhang/synimu" class="external-link">
-    <span class="fas fa-github"></span>
+    <span class="fa fa-github"></span>
      
   </a>
 </li>
@@ -63,7 +63,7 @@
 
       
 
-      </header><script src="vignettes_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>
@@ -214,8 +214,7 @@
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">c_svo</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs.html">find_optimal_coefs</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">weights</span><span class="op">)</span>
 <span class="va">c_svo</span></code></pre></div>
-<pre><code><span class="co">## [1] -0.008918013  0.335850327  0.084386475  0.475653663  0.129491682</span>
-<span class="co">## [6] -0.016464134</span></code></pre>
+<pre><code><span class="co">## [1] -0.01993349  0.28989108  0.07229865  0.54648993  0.13307622 -0.02182240</span></code></pre>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Estimate the Q matrix (the covariance of the Random Walk innovations)</span>
 <span class="va">Q_hat</span> <span class="op">=</span> <span class="fu"><a href="../reference/algorithm_2.html">algorithm_2</a></span><span class="op">(</span><span class="va">Xt</span><span class="op">)</span><span class="op">$</span><span class="va">Q</span>
@@ -223,21 +222,21 @@
 <span class="co"># Compute the coefficients</span>
 <span class="va">c_vaccarozaki</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs_vaccaro.html">find_optimal_coefs_vaccaro</a></span><span class="op">(</span><span class="va">Q_hat</span><span class="op">)</span>
 <span class="va">c_vaccarozaki</span></code></pre></div>
-<pre><code><span class="co">## [1]  0.02235344  0.09673396  0.26331991  0.48985216 -0.04654916  0.17428969</span></code></pre>
+<pre><code><span class="co">## [1]  0.01690066  0.07819669  0.28049420  0.50242681 -0.03989131  0.16187295</span></code></pre>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_virtual_gyro.html">plot_virtual_gyro</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">c_svo</span>, <span class="va">c_vaccarozaki</span>, names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SVO"</span>, <span class="st">"VaccaroZaki"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="vignettes_files/figure-html/unnamed-chunk-12-1.png" width="672"></p>
 </div>
 </div>
 <div class="section level1 unnumbered">
-<h1 id="bibliography">Bibliography<a class="anchor" aria-label="anchor" href="#bibliography"></a>
+<h1 class="unnumbered" id="bibliography">Bibliography<a class="anchor" aria-label="anchor" href="#bibliography"></a>
 </h1>
-<div id="refs" class="references">
-<div id="ref-s17020352">
-<p>Vaccaro, Richard J., and Ahmed S. Zaki. 2017. “Reduced-Drift Virtual Gyro from an Array of Low-Cost Gyros.” <em>Sensors</em> 17 (2). <a href="https://doi.org/10.3390/s17020352" class="external-link">https://doi.org/10.3390/s17020352</a>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-s17020352" class="csl-entry">
+Vaccaro, Richard J., and Ahmed S. Zaki. 2017. <span>“Reduced-Drift Virtual Gyro from an Array of Low-Cost Gyros.”</span> <em>Sensors</em> 17 (2). <a href="https://doi.org/10.3390/s17020352" class="external-link">https://doi.org/10.3390/s17020352</a>.
 </div>
-<div id="ref-zhang2021scalewise">
-<p>Zhang, Yuming, Davide A. Cucci, Roberto Molinari, and Stéphane Guerrier. 2021. “Scale-Wise Variance Minimization for Optimal Virtual Signals: An Approach for Redundant Gyroscopes.” <a href="http://arxiv.org/abs/2106.15997" class="external-link">http://arxiv.org/abs/2106.15997</a>.</p>
+<div id="ref-zhang2021scalewise" class="csl-entry">
+Zhang, Yuming, Davide A. Cucci, Roberto Molinari, and Stéphane Guerrier. 2021. <span>“Scale-Wise Variance Minimization for Optimal Virtual Signals: An Approach for Redundant Gyroscopes.”</span> <a href="http://arxiv.org/abs/2106.15997" class="external-link">http://arxiv.org/abs/2106.15997</a>.
 </div>
 </div>
 </div>
@@ -255,7 +254,7 @@
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Yuming Zhang, Davide Antonio Cucci, Stéphane Guerrier, Roberto Molinari, Haotian Xu.</p>
+<p>Developed by Yuming Zhang, Davide Antonio Cucci, Haotian Xu.</p>
 </div>
 
 <div class="pkgdown">
