@@ -8,7 +8,7 @@ Authors@R: c(
     person("Yuming", "Zhang", email = "yumingzhang0525@gmail.com", role = c("aut","cre")),
     person("Davide Antonio", "Cucci", role = "aut"),
     person("Haotian", "Xu", role = "aut"),
-    person("Stéphane", "Guerrier", role = "ctb"),
+    person("Stéphane", "Guerrier", role = "aut"),
     person("Roberto", "Molinari", role = "ctb")
     )
 Maintainer: Yuming Zhang <yumingzhang0525@gmail.com>

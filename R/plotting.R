@@ -135,9 +135,8 @@ plot_virtual_gyro <- function(Xt, ..., names, freq = 1, ratio_ylim = NA) {
 }
 
 #' @title Plot Wavelet Variance
-#' @description Displays a plot of wavelet variance accounting for CI values and supplied efficiency.
-#'
-#' This function is a slight modification of the one provided in the wv package
+#' @description This function displays a plot of wavelet variance accounting for confidence interval values and supplied efficiency.
+#' This function is a slight modification of the plot.wvar function provided in the wv package.
 #' @export
 #' @param x                A \code{wvar} object.
 #' @param units            A \code{string} that specifies the units of time plotted on the x axis.
@@ -154,7 +153,8 @@ plot_virtual_gyro <- function(Xt, ..., names, freq = 1, ratio_ylim = NA) {
 #' @param point_pch        A \code{double} that specifies the symbol type to be plotted.
 #' @param ...              Additional arguments affecting the plot.
 #' @return Plot of wavelet variance and confidence interval for each scale.
-#' @author Stephane Guerrier, Nathanael Claussen, and Justin Lee
+#' @author Stephane Guerrier
+
 plotwvar = function(x, units = NULL, xlab = NULL, ylab = NULL, main = NULL,
                     col_wv = NULL, col_ci = NULL, nb_ticks_x = NULL, nb_ticks_y = NULL,
                     legend_position = NULL, ci_wv = NULL, point_cex = NULL,

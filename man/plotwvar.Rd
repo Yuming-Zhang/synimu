@@ -53,10 +53,9 @@ plotwvar(
 Plot of wavelet variance and confidence interval for each scale.
 }
 \description{
-Displays a plot of wavelet variance accounting for CI values and supplied efficiency.
-
-This function is a slight modification of the one provided in the wv package
+This function displays a plot of wavelet variance accounting for confidence interval values and supplied efficiency.
+This function is a slight modification of the plot.wvar function provided in the wv package.
 }
 \author{
-Stephane Guerrier, Nathanael Claussen, and Justin Lee
+Stephane Guerrier
 }
