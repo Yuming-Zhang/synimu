@@ -2,12 +2,12 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 [![Licence](https://img.shields.io/badge/licence-AGPL--3.0-blue.svg)](https://opensource.org/licenses/AGPL-3.0)
-[![Last-changedate](https://img.shields.io/badge/last%20change-2022--01--10-yellowgreen.svg)](https://github.com/SMAC-Group/wv)
+[![Last-changedate](https://img.shields.io/badge/last%20change-2022--01--14-yellowgreen.svg)](https://github.com/SMAC-Group/wv)
 
 # `synimu` Overview
 
 This `synimu` package contains the functions and datasets that allow to
-replicate the examples considered in Zhang, et al. (2021) (see
+replicate the examples considered in Zhang et al. (2021) (see
 [arXiv:2106.15997](https://arxiv.org/abs/2106.15997)). In particular,
 this package implements a non-parametric method that makes use of the
 wavelet cross-covariance at different scales to combine the measurements
