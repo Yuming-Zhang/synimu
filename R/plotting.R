@@ -9,9 +9,10 @@ gg_color_hue <- function(n, alpha) {
 #' @param Xt A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.
 #' @param ... Multiple \code{vector} of coefficients.
 #' @param names A \code{vector} of strings to be used for the legend.
+#' @param ration_ylim Custom y limits for the ratio plot
 #' @importFrom wv wvar
 #' @author Davide Antonio Cucci
-plot_virtual_gyro <- function(Xt, ..., names) {
+plot_virtual_gyro <- function(Xt, ..., names, ratio_ylim = NA) {
   coeffs = list(...)
 
   names = c(names, "Equal")
@@ -63,9 +64,13 @@ plot_virtual_gyro <- function(Xt, ..., names) {
 
   xl = c(min(wvs[[1]]$scales), max(wvs[[1]]$scales))
 
-  ylr = sapply(ratios, function (x) {c(max(x), min(x))})
-  ylr = c(min(ylr[2,]),max(ylr[1,]))*c(1,2)
-  ylr = c(10^floor(log10(ylr[1])), 10^ceiling(log10(ylr[2])))
+  if (is.na(ratio_ylim[1])) {
+    ylr = sapply(ratios, function (x) {c(max(x), min(x))})
+    ylr = c(min(ylr[2,]),max(ylr[1,]))*c(1,2)
+    ylr = c(10^floor(log10(ylr[1])), 10^ceiling(log10(ylr[2])))
+  } else {
+    ylr = ratio_ylim
+  }
 
   cols = gg_color_hue(length(coeffs))
   colsa = gg_color_hue(length(coeffs), 0x20/256)
