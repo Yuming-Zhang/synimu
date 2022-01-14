@@ -105,7 +105,7 @@ plot_virtual_gyro <- function(Xt, ..., names, freq = 1, ratio_ylim = NA) {
   # plot wvs
 
   par(mar = c(4.5, 4.5, 1, 0.5))
-  plot(NA, xlim = xl, ylim = yl, log = "xy", xlab = "Averaging time [s]", ylab = expression(paste("Wavelet Variance [", rad^2/s^2, "]")), xaxt = "n", yaxt = "n")
+  plot(NA, xlim = xl, ylim = yl, log = "xy", xlab = "Averaging time [s]", ylab = expression(paste("Wavelet variance [", rad^2/s^2, "]")), xaxt = "n", yaxt = "n")
 
   # fix axis
 
@@ -170,7 +170,7 @@ plotwvar = function(x, units = NULL, xlab = NULL, ylab = NULL, main = NULL,
   }
 
   if (is.null(ylab)){
-    ylab = expression(paste("Wavelet Variance ", nu^2, sep = ""))
+    ylab = expression(paste("Wavelet variance ", nu^2, sep = ""))
   }else{
     ylab = ylab
   }
