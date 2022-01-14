@@ -37,13 +37,13 @@ tau = 1:n_scales
 weights = exp(tau-15)/(1 + exp(tau-15))
 weights = weights/sum(weights)
 
-plot(tau, weights, xlab = "Wavelet variance scales [samples]", ylab = "Weight", type = "l", xaxt="n")
+plot(tau, weights, xlab = "Wavelet variance scales", ylab = "Weight", type = "l", xaxt="n")
 
 # plot x axis labels in samples (powers of 10)
 p10s = seq(0,log10(2^(tail(tau,1))))
 axis(1, at = log2(10^p10s), labels = sapply(p10s, function(i) as.expression(bquote(10^ .(i)))))
 abline(v = log2(10^p10s), col = "grey", lt = 2 )
-
+abline(h = seq(0,0.15,0.05), col = "grey", lt = 2 )
 ```
 
 
