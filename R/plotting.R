@@ -88,9 +88,9 @@ plot_virtual_gyro <- function(Xt, ..., names, ratio_ylim = NA) {
   # axis(1, at=10^xlogs, label= sapply(xlogs, function(i) as.expression(bquote(10^ .(i)))))
 
   ylogs = -20:20
-  ylogs2 = seq(-20,20,.1)
+  # ylogs2 = seq(-20,20,.1)
   axis(2, at=10^ylogs, label = sapply(ylogs, function(i) as.expression(bquote(10^ .(i)))))
-  axis(2, at=10^ylogs2, label = FALSE, lwd=0.5)
+  # axis(2, at=10^ylogs2, label = FALSE, lwd=0.5)
 
   abline(h=10^ylogs, v=10^xlogs, col = "grey", lt=2)
 
@@ -104,7 +104,7 @@ plot_virtual_gyro <- function(Xt, ..., names, ratio_ylim = NA) {
   # plot wvs
 
   par(mar = c(4.5, 4.5, 1, 0.5))
-  plot(NA, xlim = xl, ylim = yl, log = "xy", xlab = "Scales [samples]", ylab = "Wavelet Variance", xaxt = "n", yaxt = "n")
+  plot(NA, xlim = xl, ylim = yl, log = "xy", xlab = expression(paste("Scales ", tau, " [samples]")), ylab = expression(paste("Wavelet Variance [", rad^2/s^2, "]")), xaxt = "n", yaxt = "n")
 
   # fix axis
 
