@@ -223,6 +223,7 @@ CCQ = function(Q1, Q2, Q12, N, scales) {
 #' The implementation reflects Algorithm 1 in Richard J. Vaccaro and Ahmed S. Zaki, "Reduced-Drift Virtual Gyro from an Array of Low-Cost Gyros".
 #' @export
 #' @param X A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.
+#' @param remove_last_scale wether the last scale of the Allan variance should be removed
 #' @return A \code{list} with the following structure:
 #' \itemize{
 #'  \item R: A \code{vector} of size p of the estimated white noise variances.
@@ -230,8 +231,14 @@ CCQ = function(Q1, Q2, Q12, N, scales) {
 #' }
 #' @author Davide Antonio Cucci
 
-algorithm_1 = function(X) {
+algorithm_1 = function(X, remove_last_scale = FALSE) {
   allan = av(X)
+
+  if (remove_last_scale == TRUE) {
+    allan$J = allan$J-1
+    allan$scales = allan$scales[-length(allan$scales)]
+    allan$variance = allan$variance[-length(allan$variance)]
+  }
 
   m0 = allan$scales[which.min(allan$variance)]
 
@@ -261,14 +268,14 @@ algorithm_1 = function(X) {
 }
 
 
-algorithm_1_ms = function(X) {
+algorithm_1_ms = function(X, remove_last_scale) {
   n_ts = dim(X)[2]
 
   R = rep(NA, n_ts)
   Q = rep(NA, n_ts)
 
   for (i in 1:n_ts) {
-    ret = algorithm_1(X[,i])
+    ret = algorithm_1(X[,i], remove_last_scale)
     R[i] = ret$R
     Q[i] = ret$Q
   }
@@ -285,6 +292,7 @@ algorithm_1_ms = function(X) {
 #' The implementation reflects Algorithm 2 in Richard J. Vaccaro and Ahmed S. Zaki, "Reduced-Drift Virtual Gyro from an Array of Low-Cost Gyros".
 #' @export
 #' @param X A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.
+#' @param remove_last_scale wether the last scale of the Allan variance should be removed
 #' @return A \code{list} with the following structure:
 #' \itemize{
 #'  \item R: A \code{vector} of size p of the estimated white noise variances.
@@ -292,18 +300,27 @@ algorithm_1_ms = function(X) {
 #' }
 #' @author Davide Antonio Cucci
 
-algorithm_2 = function(X) {
+algorithm_2 = function(X, remove_last_scale = FALSE) {
   if (log2(dim(X)[1]) %% 1 != 0) {
     X = X[1:(2^floor(log2(dim(X)[1]))),]
     warning(paste("truncating X to the first 2^", log2(dim(X)[1]),"samples"))
   }
 
-  ret = algorithm_1_ms(X)
+  ret = algorithm_1_ms(X, remove_last_scale)
 
   R = ret$R
   Q = diag(ret$Q)
 
   allancov = acov(X)
+
+  if (remove_last_scale == TRUE) {
+    n = allancov$J
+
+    allancov$J = allancov$J-1
+    allancov$scales = allancov$scales[-n]
+
+    allancov$covariance = allancov$covariance[-n]
+  }
 
   H = matrix(allancov$scales/3, nrow=length(allancov$scales), ncol=1)
 

@@ -4,10 +4,12 @@
 \alias{algorithm_2}
 \title{Estimation of White Noise and Random Walk Innovation Covariances \eqn{R} and \eqn{Q}}
 \usage{
-algorithm_2(X)
+algorithm_2(X, remove_last_scale = FALSE)
 }
 \arguments{
 \item{X}{A \code{matrix} of dimension T by p, where T is the length of the time series and p is the number of processes.}
+
+\item{remove_last_scale}{wether the last scale of the Allan variance should be removed}
 }
 \value{
 A \code{list} with the following structure:
