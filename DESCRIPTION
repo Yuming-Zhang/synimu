@@ -2,7 +2,7 @@ Package: synimu
 Type: Package
 Title: Scale-wise Variance Optimization
 Version: 0.1.0
-Date: 2022-01-10
+Date: 2022-09-22
 LazyData: true
 Authors@R: c(
     person("Yuming", "Zhang", email = "yumingzhang0525@gmail.com", role = c("aut","cre")),
@@ -12,7 +12,7 @@ Authors@R: c(
     person("Roberto", "Molinari", role = "ctb")
     )
 Maintainer: Yuming Zhang <yumingzhang0525@gmail.com>
-Description: This R package contains the functions and datasets that allow to replicate the examples considered in Zhang et al. (2021) <arXiv: 2106.15997>. In particular, this package implements a non-parametric method that makes use of the wavelet cross-covariance at different scales to combine the measurements coming from an array of gyroscopes in order to deliver an optimal measurement signal without needing any assumption on the processes underlying the individual error signals. Although the method is illustrated with the applications of gyroscopes, it can be applied to any sensor or signal where one aims to compute an average signal having optimal properties in terms of its resulting wavelet variance. Moreover, in this package we also provide a rigorous non-parametric approach for the estimation of the asymptotic covariance matrix of the wavelet cross-covariance estimator which has different important applications.   
+Description: This R package contains the functions and datasets that allow to replicate the examples considered in Zhang et al. (2022) <https://ieeexplore.ieee.org/abstract/document/9899741>. In particular, this package implements a non-parametric method that makes use of the wavelet cross-covariance at different scales to combine the measurements coming from an array of gyroscopes in order to deliver an optimal measurement signal with weak assumptions on the processes underlying the individual error signals. Although the method is illustrated with the applications of gyroscopes, it can be applied to any sensor or signal where one aims to compute an average signal having optimal properties in terms of its resulting wavelet variance. In this package we also provide a rigorous non-parametric approach for the estimation of the asymptotic covariance matrix of the wavelet cross-covariance estimator which has various important applications.
 License: AGPL-3 
 Imports: 
   wv,
@@ -20,5 +20,5 @@ Imports:
   mvtnorm
 RoxygenNote: 7.1.2
 Encoding: UTF-8
-URL: https://github.com/Yuming-Zhang/synimu, https://arxiv.org/abs/2106.15997
+URL: https://github.com/Yuming-Zhang/synimu, https://ieeexplore.ieee.org/abstract/document/9899741
 BugReports: https://github.com/Yuming-Zhang/synimu/issues
