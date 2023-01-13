@@ -55,57 +55,86 @@ This function is a slight modification of the plot.wvar function provided in the
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">plotwvar</span><span class="op">(</span>
-  <span class="va">x</span>,
-  units <span class="op">=</span> <span class="cn">NULL</span>,
-  xlab <span class="op">=</span> <span class="cn">NULL</span>,
-  ylab <span class="op">=</span> <span class="cn">NULL</span>,
-  main <span class="op">=</span> <span class="cn">NULL</span>,
-  col_wv <span class="op">=</span> <span class="cn">NULL</span>,
-  col_ci <span class="op">=</span> <span class="cn">NULL</span>,
-  nb_ticks_x <span class="op">=</span> <span class="cn">NULL</span>,
-  nb_ticks_y <span class="op">=</span> <span class="cn">NULL</span>,
-  legend_position <span class="op">=</span> <span class="cn">NULL</span>,
-  ci_wv <span class="op">=</span> <span class="cn">NULL</span>,
-  point_cex <span class="op">=</span> <span class="cn">NULL</span>,
-  point_pch <span class="op">=</span> <span class="cn">NULL</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotwvar</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  units <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  main <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  col_wv <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  col_ci <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  nb_ticks_x <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  nb_ticks_y <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  legend_position <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ci_wv <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  point_cex <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  point_pch <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p>A <code>wvar</code> object.</p></dd>
+
+
 <dt>units</dt>
 <dd><p>A <code>string</code> that specifies the units of time plotted on the x axis.</p></dd>
+
+
 <dt>xlab</dt>
 <dd><p>A <code>string</code> that gives a title for the x axis.</p></dd>
+
+
 <dt>ylab</dt>
 <dd><p>A <code>string</code> that gives a title for the y axis.</p></dd>
+
+
 <dt>main</dt>
 <dd><p>A <code>string</code> that gives an overall title for the plot.</p></dd>
+
+
 <dt>col_wv</dt>
 <dd><p>A <code>string</code> that specifies the color of the wavelet variance line.</p></dd>
+
+
 <dt>col_ci</dt>
 <dd><p>A <code>string</code> that specifies the color of the confidence interval polygon.</p></dd>
+
+
 <dt>nb_ticks_x</dt>
 <dd><p>An <code>integer</code> that specifies the maximum number of ticks for the x-axis.</p></dd>
+
+
 <dt>nb_ticks_y</dt>
 <dd><p>An <code>integer</code> that specifies the maximum number of ticks for the y-axis.</p></dd>
+
+
 <dt>legend_position</dt>
 <dd><p>A <code>string</code> that specifies the position of the legend (use <code>legend_position = NA</code> to remove legend).</p></dd>
+
+
 <dt>ci_wv</dt>
 <dd><p>A <code>boolean</code> that determines whether a confidence interval polygon will be drawn.</p></dd>
+
+
 <dt>point_cex</dt>
 <dd><p>A <code>double</code> that specifies the size of each symbol to be plotted.</p></dd>
+
+
 <dt>point_pch</dt>
 <dd><p>A <code>double</code> that specifies the symbol type to be plotted.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional arguments affecting the plot.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Plot of wavelet variance and confidence interval for each scale.</p>
+    
+
+<p>Plot of wavelet variance and confidence interval for each scale.</p>
     </div>
     <div id="author">
     <h2>Author</h2>
@@ -124,7 +153,7 @@ This function is a slight modification of the plot.wvar function provided in the
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

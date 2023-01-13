@@ -77,169 +77,212 @@
 
     
     
-<p>In <span class="citation">Zhang et al. (2021)</span>, we introduce a method allowing to compute synthetic (or average) signals issued from multiple correlated and/or even non-stationary signals. In a nutshell, this method minimizes a weighted average of the wavelet variance of the synthetic signal whose weights can be chosen depending on the application at hand. This method is illustrated with gyroscopes which often contain non-stationary processes such as random walks. This package implements the method of <span class="citation">Zhang et al. (2021)</span>, called Scale-wise Variance Optimization or SVO, as well as the approach of <span class="citation">Vaccaro and Zaki (2017)</span>, which is used as a comparison.</p>
-<div class="section level1">
-<h1 id="real-gyroscope-data-analysis">Real Gyroscope Data Analysis<a class="anchor" aria-label="anchor" href="#real-gyroscope-data-analysis"></a>
-</h1>
-<p>We consider the real gyroscope data considered in <span class="citation">Zhang et al. (2021)</span>, where a virtual gyroscope is created by fusing 12 real MEMS from two device families, InvenSense ICM-20689 and Bosch BMI055. The employed data is included in the package and can be loaded as follows:</p>
+<p>In <span class="citation">Zhang et al. (2022)</span>, we introduce a
+method allowing to compute synthetic (or average) signals issued from
+multiple correlated and/or even non-stationary signals. In a nutshell,
+this method minimizes a weighted average of the wavelet variance of the
+synthetic signal whose weights can be chosen depending on the
+application at hand. This method is illustrated with gyroscopes which
+often contain non-stationary processes such as random walks. This
+package implements the method of <span class="citation">Zhang et al.
+(2022)</span>, called Scale-wise Variance Optimization or SVO, as well
+as the approach of <span class="citation">Vaccaro and Zaki
+(2017)</span>, which is used as a comparison.</p>
+<div class="section level2">
+<h2 id="real-gyroscope-data-analysis">Real Gyroscope Data Analysis<a class="anchor" aria-label="anchor" href="#real-gyroscope-data-analysis"></a>
+</h2>
+<p>We consider the real gyroscope data considered in <span class="citation">Zhang et al. (2022)</span>, where a virtual gyroscope
+is created by fusing 12 real MEMS from two device families, InvenSense
+ICM-20689 and Bosch BMI055. The employed data is included in the package
+and can be loaded as follows:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/Yuming-Zhang/synimu" class="external-link">synimu</a></span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">BMI055</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">ICM20689</span><span class="op">)</span>
-
-<span class="va">Xt</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">ICM20689</span>, <span class="va">BMI055</span><span class="op">)</span></code></pre></div>
-<p>We first need to choose which scales we would like to minimize in the wavelet variance plot. In the SVO proposed in <span class="citation">Zhang et al. (2021)</span>, this is obtained by choosing non-negative weights on the scales that sum to one. For example, if one is interested in minimizing the large scales of the wavelet variance, suitable weights can be obtained as follows:</p>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/Yuming-Zhang/synimu" class="external-link">synimu</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">BMI055</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">ICM20689</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">Xt</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">ICM20689</span>, <span class="va">BMI055</span><span class="op">)</span></span></code></pre></div>
+<p>We first need to choose which scales we would like to minimize in the
+wavelet variance plot. In the SVO proposed in <span class="citation">Zhang et al. (2022)</span>, this is obtained by
+choosing non-negative weights on the scales that sum to one. For
+example, if one is interested in minimizing the large scales of the
+wavelet variance, suitable weights can be obtained as follows:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">n_scales</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">Xt</span><span class="op">)</span> <span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>
-<span class="va">tau</span> <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">n_scales</span>
-
-<span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">tau</span><span class="op">-</span><span class="fl">15</span><span class="op">)</span><span class="op">/</span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">tau</span><span class="op">-</span><span class="fl">15</span><span class="op">)</span><span class="op">)</span>
-<span class="va">weights</span> <span class="op">=</span> <span class="va">weights</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="cn">NA</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">tau</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"Wavelet variance scales"</span>, ylab <span class="op">=</span> <span class="st">"Weight"</span>, xaxt<span class="op">=</span><span class="st">"n"</span><span class="op">)</span>
-<span class="va">p10s</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fl">2</span><span class="op">^</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">tau</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span><span class="fl">10</span><span class="op">^</span><span class="va">p10s</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"grey"</span>, lt <span class="op">=</span> <span class="fl">2</span> <span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"grey"</span>, lt <span class="op">=</span> <span class="fl">2</span> <span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">tau</span>, <span class="va">weights</span>, lwd <span class="op">=</span> <span class="fl">1.3</span><span class="op">)</span>
-
-<span class="co"># plot x axis labels in samples (powers of 10)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/axis.html" class="external-link">axis</a></span><span class="op">(</span><span class="fl">1</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span><span class="fl">10</span><span class="op">^</span><span class="va">p10s</span><span class="op">)</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">p10s</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">as.expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="fl">10</span><span class="op">^</span> <span class="fu">.</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">n_scales</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">Xt</span><span class="op">)</span> <span class="op">)</span> <span class="op">-</span> <span class="fl">1</span></span>
+<span><span class="va">tau</span> <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">n_scales</span></span>
+<span></span>
+<span><span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">tau</span><span class="op">-</span><span class="fl">15</span><span class="op">)</span><span class="op">/</span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">tau</span><span class="op">-</span><span class="fl">15</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">weights</span> <span class="op">=</span> <span class="va">weights</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="cn">NA</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">tau</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"Wavelet variance scales"</span>, ylab <span class="op">=</span> <span class="st">"Weight"</span>, xaxt<span class="op">=</span><span class="st">"n"</span><span class="op">)</span></span>
+<span><span class="va">p10s</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fl">2</span><span class="op">^</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">tau</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span><span class="fl">10</span><span class="op">^</span><span class="va">p10s</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"grey"</span>, lt <span class="op">=</span> <span class="fl">2</span> <span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0.15</span>,<span class="fl">0.05</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"grey"</span>, lt <span class="op">=</span> <span class="fl">2</span> <span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">tau</span>, <span class="va">weights</span>, lwd <span class="op">=</span> <span class="fl">1.3</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># plot x axis labels in samples (powers of 10)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/axis.html" class="external-link">axis</a></span><span class="op">(</span><span class="fl">1</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span><span class="fl">10</span><span class="op">^</span><span class="va">p10s</span><span class="op">)</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">p10s</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">as.expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="fl">10</span><span class="op">^</span> <span class="fu">.</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="vignettes_files/figure-html/unnamed-chunk-2-1.png" width="672"></p>
-<p>Once the weights on scales have been specified, one can obtain the coefficients to be used in the linear combination of single gyroscope signals as follows:</p>
+<p>Once the weights on scales have been specified, one can obtain the
+coefficients to be used in the linear combination of single gyroscope
+signals as follows:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">c_hat</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs.html">find_optimal_coefs</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">weights</span><span class="op">)</span>
-<span class="va">c_hat</span></code></pre></div>
-<pre><code><span class="co">##  [1] 0.043489268 0.016530619 0.029687293 0.103975706 0.069757839 0.219428143</span>
-<span class="co">##  [7] 0.005264892 0.035700749 0.173090431 0.016060061 0.112651638 0.174363362</span></code></pre>
-<p>The obtained virtual gyroscope can be compared with what would be obtained with equal coefficients using the “plot_virtual_gyro” function:</p>
+<code class="sourceCode R"><span><span class="va">c_hat</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs.html">find_optimal_coefs</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">weights</span><span class="op">)</span></span>
+<span><span class="va">c_hat</span></span></code></pre></div>
+<pre><code><span><span class="co">##  [1] 0.043489268 0.016530619 0.029687293 0.103975706 0.069757839 0.219428143</span></span>
+<span><span class="co">##  [7] 0.005264892 0.035700749 0.173090431 0.016060061 0.112651638 0.174363362</span></span></code></pre>
+<p>The obtained virtual gyroscope can be compared with what would be
+obtained with equal coefficients using the “plot_virtual_gyro”
+function:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot_virtual_gyro.html">plot_virtual_gyro</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">c_hat</span>, names <span class="op">=</span> <span class="st">"SVO"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_virtual_gyro.html">plot_virtual_gyro</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">c_hat</span>, names <span class="op">=</span> <span class="st">"SVO"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="vignettes_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
 </div>
-<div class="section level1">
-<h1 id="simulation-studies">Simulation Studies<a class="anchor" aria-label="anchor" href="#simulation-studies"></a>
-</h1>
-<p>In this section we will provide the instructions on how to reproduce the Monte-Carlo simulations presented in <span class="citation">Zhang et al. (2021)</span>.</p>
 <div class="section level2">
-<h2 id="white-noise-random-walk">White Noise + Random Walk<a class="anchor" aria-label="anchor" href="#white-noise-random-walk"></a>
+<h2 id="simulation-studies">Simulation Studies<a class="anchor" aria-label="anchor" href="#simulation-studies"></a>
 </h2>
-<p>In this section we simulate data for six gyroscopes whose noise error model is composed by a white noise and a random walk (with correlated innovations), as in Equation (11) in <span class="citation">Zhang et al. (2021)</span>.</p>
+<p>In this section we will provide the instructions on how to reproduce
+the Monte-Carlo simulations presented in <span class="citation">Zhang et
+al. (2022)</span>.</p>
+<div class="section level3">
+<h3 id="white-noise-random-walk">White Noise + Random Walk<a class="anchor" aria-label="anchor" href="#white-noise-random-walk"></a>
+</h3>
+<p>In this section we simulate data for six gyroscopes whose noise error
+model is composed by a white noise and a random walk (with correlated
+innovations), as in Equation (11) in <span class="citation">Zhang et al.
+(2022)</span>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># definition of the noise parameters</span>
-
-<span class="va">sigma_wn</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.805556e-07</span>, <span class="fl">1.977778e-07</span>, <span class="fl">1.361111e-07</span>, <span class="fl">1.063889e-07</span>, <span class="fl">1.069444e-07</span>, <span class="fl">2.538889e-07</span><span class="op">)</span>
-
-<span class="va">sigma_rw</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>
-  <span class="fl">2.550583e-14</span>, <span class="op">-</span><span class="fl">8.573388e-16</span>,  <span class="fl">1.028807e-14</span>, <span class="op">-</span><span class="fl">1.628944e-14</span>, <span class="op">-</span><span class="fl">2.400549e-14</span>, <span class="op">-</span><span class="fl">5.572702e-15</span>,
- <span class="op">-</span><span class="fl">8.573388e-16</span>,  <span class="fl">4.715364e-14</span>,  <span class="fl">1.993313e-14</span>,  <span class="fl">1.071674e-15</span>,  <span class="fl">3.215021e-15</span>,  <span class="fl">2.079047e-14</span>,
-  <span class="fl">1.028807e-14</span>,  <span class="fl">1.993313e-14</span>,  <span class="fl">3.489369e-13</span>, <span class="op">-</span><span class="fl">1.281722e-13</span>,  <span class="fl">5.572702e-15</span>, <span class="op">-</span><span class="fl">3.022119e-14</span>,
- <span class="op">-</span><span class="fl">1.628944e-14</span>,  <span class="fl">1.071674e-15</span>, <span class="op">-</span><span class="fl">1.281722e-13</span>,  <span class="fl">2.091907e-13</span>,  <span class="fl">4.093793e-14</span>,  <span class="fl">5.444102e-14</span>,
- <span class="op">-</span><span class="fl">2.400549e-14</span>,  <span class="fl">3.215021e-15</span>,  <span class="fl">5.572702e-15</span>,  <span class="fl">4.093793e-14</span>,  <span class="fl">5.551269e-14</span>,  <span class="fl">2.443416e-14</span>,
- <span class="op">-</span><span class="fl">5.572702e-15</span>,  <span class="fl">2.079047e-14</span>, <span class="op">-</span><span class="fl">3.022119e-14</span>,  <span class="fl">5.444102e-14</span>,  <span class="fl">2.443416e-14</span>,  <span class="fl">2.501286e-13</span>
-<span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">6</span>, byrow <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
-
-<span class="va">N</span> <span class="op">=</span> <span class="fl">2</span><span class="op">^</span><span class="fl">20</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-<span class="va">Xt</span> <span class="op">=</span> <span class="fu"><a href="../reference/simulate_wn.html">simulate_wn</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">sigma_wn</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="../reference/simulate_corr_rw.html">simulate_corr_rw</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">sigma_rw</span><span class="op">)</span></code></pre></div>
-<p>We define weights in order to minimize the largest scales of the wavelet variance and we compute the coefficients with the approach of SVO:</p>
+<code class="sourceCode R"><span><span class="co"># definition of the noise parameters</span></span>
+<span></span>
+<span><span class="va">sigma_wn</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.805556e-07</span>, <span class="fl">1.977778e-07</span>, <span class="fl">1.361111e-07</span>, <span class="fl">1.063889e-07</span>, <span class="fl">1.069444e-07</span>, <span class="fl">2.538889e-07</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">sigma_rw</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="fl">2.550583e-14</span>, <span class="op">-</span><span class="fl">8.573388e-16</span>,  <span class="fl">1.028807e-14</span>, <span class="op">-</span><span class="fl">1.628944e-14</span>, <span class="op">-</span><span class="fl">2.400549e-14</span>, <span class="op">-</span><span class="fl">5.572702e-15</span>,</span>
+<span> <span class="op">-</span><span class="fl">8.573388e-16</span>,  <span class="fl">4.715364e-14</span>,  <span class="fl">1.993313e-14</span>,  <span class="fl">1.071674e-15</span>,  <span class="fl">3.215021e-15</span>,  <span class="fl">2.079047e-14</span>,</span>
+<span>  <span class="fl">1.028807e-14</span>,  <span class="fl">1.993313e-14</span>,  <span class="fl">3.489369e-13</span>, <span class="op">-</span><span class="fl">1.281722e-13</span>,  <span class="fl">5.572702e-15</span>, <span class="op">-</span><span class="fl">3.022119e-14</span>,</span>
+<span> <span class="op">-</span><span class="fl">1.628944e-14</span>,  <span class="fl">1.071674e-15</span>, <span class="op">-</span><span class="fl">1.281722e-13</span>,  <span class="fl">2.091907e-13</span>,  <span class="fl">4.093793e-14</span>,  <span class="fl">5.444102e-14</span>,</span>
+<span> <span class="op">-</span><span class="fl">2.400549e-14</span>,  <span class="fl">3.215021e-15</span>,  <span class="fl">5.572702e-15</span>,  <span class="fl">4.093793e-14</span>,  <span class="fl">5.551269e-14</span>,  <span class="fl">2.443416e-14</span>,</span>
+<span> <span class="op">-</span><span class="fl">5.572702e-15</span>,  <span class="fl">2.079047e-14</span>, <span class="op">-</span><span class="fl">3.022119e-14</span>,  <span class="fl">5.444102e-14</span>,  <span class="fl">2.443416e-14</span>,  <span class="fl">2.501286e-13</span></span>
+<span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">6</span>, byrow <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">N</span> <span class="op">=</span> <span class="fl">2</span><span class="op">^</span><span class="fl">20</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">Xt</span> <span class="op">=</span> <span class="fu"><a href="../reference/simulate_wn.html">simulate_wn</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">sigma_wn</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="../reference/simulate_corr_rw.html">simulate_corr_rw</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">sigma_rw</span><span class="op">)</span></span></code></pre></div>
+<p>We define weights in order to minimize the largest scales of the
+wavelet variance and we compute the coefficients with the approach of
+SVO:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">n_scales</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span> <span class="va">N</span> <span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>
-<span class="va">tau</span> <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">n_scales</span>
-
-<span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">tau</span><span class="op">-</span><span class="fl">13</span><span class="op">)</span><span class="op">/</span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">tau</span><span class="op">-</span><span class="fl">13</span><span class="op">)</span><span class="op">)</span>
-<span class="va">weights</span> <span class="op">=</span> <span class="va">weights</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span>
-
-<span class="va">c_svo</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs.html">find_optimal_coefs</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">weights</span><span class="op">)</span>
-<span class="va">c_svo</span></code></pre></div>
-<pre><code><span class="co">## [1]  0.64883444  0.09086595 -0.08442475 -0.03256908  0.42664989 -0.04935644</span></code></pre>
-<p>As a comparison, we also compute the optimal coefficients according to the method presented in <span class="citation">Vaccaro and Zaki (2017)</span>, which can be calculated as follows:</p>
+<code class="sourceCode R"><span><span class="va">n_scales</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span> <span class="va">N</span> <span class="op">)</span> <span class="op">-</span> <span class="fl">1</span></span>
+<span><span class="va">tau</span> <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">n_scales</span></span>
+<span></span>
+<span><span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">tau</span><span class="op">-</span><span class="fl">13</span><span class="op">)</span><span class="op">/</span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">tau</span><span class="op">-</span><span class="fl">13</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">weights</span> <span class="op">=</span> <span class="va">weights</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">c_svo</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs.html">find_optimal_coefs</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">weights</span><span class="op">)</span></span>
+<span><span class="va">c_svo</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1]  0.64883444  0.09086595 -0.08442475 -0.03256908  0.42664989 -0.04935644</span></span></code></pre>
+<p>As a comparison, we also compute the optimal coefficients according
+to the method presented in <span class="citation">Vaccaro and Zaki
+(2017)</span>, which can be calculated as follows:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Estimate the Q matrix (the covariance of the Random Walk innovations)</span>
-<span class="va">Q_hat</span> <span class="op">=</span> <span class="fu"><a href="../reference/algorithm_2.html">algorithm_2</a></span><span class="op">(</span><span class="va">Xt</span><span class="op">)</span><span class="op">$</span><span class="va">Q</span>
-
-<span class="co"># Compute the coefficients</span>
-<span class="va">c_vaccarozaki</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs_vaccaro.html">find_optimal_coefs_vaccaro</a></span><span class="op">(</span><span class="va">Q_hat</span><span class="op">)</span>
-<span class="va">c_vaccarozaki</span></code></pre></div>
-<pre><code><span class="co">## [1]  0.660701354  0.023822495 -0.035308980 -0.023871239  0.375950202</span>
-<span class="co">## [6] -0.001293832</span></code></pre>
-<p>The results can be seen in the following plot. In this case, since the assumed model for the simulated gyroscopes satisfies the parametric assumptions in <span class="citation">Vaccaro and Zaki (2017)</span>, the results of both approaches are mostly similar.</p>
+<code class="sourceCode R"><span><span class="co"># Estimate the Q matrix (the covariance of the Random Walk innovations)</span></span>
+<span><span class="va">Q_hat</span> <span class="op">=</span> <span class="fu"><a href="../reference/algorithm_2.html">algorithm_2</a></span><span class="op">(</span><span class="va">Xt</span><span class="op">)</span><span class="op">$</span><span class="va">Q</span></span>
+<span></span>
+<span><span class="co"># Compute the coefficients</span></span>
+<span><span class="va">c_vaccarozaki</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs_vaccaro.html">find_optimal_coefs_vaccaro</a></span><span class="op">(</span><span class="va">Q_hat</span><span class="op">)</span></span>
+<span><span class="va">c_vaccarozaki</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1]  0.660701354  0.023822495 -0.035308980 -0.023871239  0.375950202</span></span>
+<span><span class="co">## [6] -0.001293832</span></span></code></pre>
+<p>The results can be seen in the following plot. In this case, since
+the assumed model for the simulated gyroscopes satisfies the parametric
+assumptions in <span class="citation">Vaccaro and Zaki (2017)</span>,
+the results of both approaches are mostly similar.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot_virtual_gyro.html">plot_virtual_gyro</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">c_svo</span>, <span class="va">c_vaccarozaki</span>, names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SVO"</span>, <span class="st">"VaccaroZaki"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_virtual_gyro.html">plot_virtual_gyro</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">c_svo</span>, <span class="va">c_vaccarozaki</span>, names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SVO"</span>, <span class="st">"VaccaroZaki"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="vignettes_files/figure-html/unnamed-chunk-8-1.png" width="672"></p>
 </div>
-<div class="section level2">
-<h2 id="white-noise-3-correlated-ar1">White Noise + 3 correlated AR(1)<a class="anchor" aria-label="anchor" href="#white-noise-3-correlated-ar1"></a>
-</h2>
-<p>In this example we simulate data for six gyroscopes whose noise error model is composed by a white noise and three first-order auto-regressive processes (with correlated innovations), as in Equation (14) in <span class="citation">Zhang et al. (2021)</span>.</p>
+<div class="section level3">
+<h3 id="white-noise-3-correlated-ar1">White Noise + 3 correlated AR(1)<a class="anchor" aria-label="anchor" href="#white-noise-3-correlated-ar1"></a>
+</h3>
+<p>In this example we simulate data for six gyroscopes whose noise error
+model is composed by a white noise and three first-order auto-regressive
+processes (with correlated innovations), as in Equation (14) in <span class="citation">Zhang et al. (2022)</span>.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">phi_ar1_1</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.9998705</span>, <span class="fl">6</span><span class="op">)</span>
-
-<span class="va">sigma_ar1_1</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>
-  <span class="fl">6.713833e-13</span>,  <span class="fl">1.515552e-13</span>,  <span class="fl">1.245013e-13</span>, <span class="op">-</span><span class="fl">7.117931e-15</span>,  <span class="fl">4.284888e-14</span>,  <span class="fl">9.577566e-14</span>,
-  <span class="fl">1.515552e-13</span>,  <span class="fl">5.607230e-13</span>,  <span class="fl">2.264650e-13</span>, <span class="op">-</span><span class="fl">7.737235e-14</span>,  <span class="fl">2.810539e-14</span>,  <span class="fl">1.440987e-13</span>,
-  <span class="fl">1.245013e-13</span>,  <span class="fl">2.264650e-13</span>,  <span class="fl">7.499051e-13</span>, <span class="op">-</span><span class="fl">1.626870e-14</span>, <span class="op">-</span><span class="fl">5.293172e-14</span>, <span class="op">-</span><span class="fl">9.995748e-14</span>,
- <span class="op">-</span><span class="fl">7.117931e-15</span>, <span class="op">-</span><span class="fl">7.737235e-14</span>, <span class="op">-</span><span class="fl">1.626870e-14</span>,  <span class="fl">1.207920e-13</span>, <span class="op">-</span><span class="fl">1.873054e-14</span>,  <span class="fl">6.817015e-14</span>,
-  <span class="fl">4.284888e-14</span>,  <span class="fl">2.810539e-14</span>, <span class="op">-</span><span class="fl">5.293172e-14</span>, <span class="op">-</span><span class="fl">1.873054e-14</span>,  <span class="fl">7.499327e-13</span>,  <span class="fl">2.414762e-13</span>,
-  <span class="fl">9.577566e-14</span>,  <span class="fl">1.440987e-13</span>, <span class="op">-</span><span class="fl">9.995748e-14</span>,  <span class="fl">6.817015e-14</span>,  <span class="fl">2.414762e-13</span>,  <span class="fl">6.461646e-13</span>
-<span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">6</span>, byrow <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
-
-<span class="va">phi_ar1_2</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.9975214</span>, <span class="fl">6</span><span class="op">)</span>
-
-<span class="va">sigma_ar1_2</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>
-  <span class="fl">4.008129e-12</span>, <span class="op">-</span><span class="fl">1.806110e-13</span>, <span class="op">-</span><span class="fl">4.477015e-13</span>, <span class="op">-</span><span class="fl">1.048567e-12</span>,  <span class="fl">2.546714e-12</span>, <span class="op">-</span><span class="fl">2.349504e-12</span>,
- <span class="op">-</span><span class="fl">1.806110e-13</span>,  <span class="fl">1.177847e-11</span>, <span class="op">-</span><span class="fl">1.290506e-13</span>, <span class="op">-</span><span class="fl">3.741980e-12</span>, <span class="op">-</span><span class="fl">5.110108e-13</span>,  <span class="fl">2.849421e-12</span>,
- <span class="op">-</span><span class="fl">4.477015e-13</span>, <span class="op">-</span><span class="fl">1.290506e-13</span>,  <span class="fl">1.965775e-11</span>,  <span class="fl">2.026288e-12</span>, <span class="op">-</span><span class="fl">1.750890e-12</span>,  <span class="fl">1.446290e-12</span>,
- <span class="op">-</span><span class="fl">1.048567e-12</span>, <span class="op">-</span><span class="fl">3.741980e-12</span>,  <span class="fl">2.026288e-12</span>,  <span class="fl">1.309887e-11</span>,  <span class="fl">2.317561e-13</span>,  <span class="fl">4.127606e-12</span>,
-  <span class="fl">2.546714e-12</span>, <span class="op">-</span><span class="fl">5.110108e-13</span>, <span class="op">-</span><span class="fl">1.750890e-12</span>,  <span class="fl">2.317561e-13</span>,  <span class="fl">1.928375e-11</span>,  <span class="fl">5.714532e-12</span>,
- <span class="op">-</span><span class="fl">2.349504e-12</span>,  <span class="fl">2.849421e-12</span>,  <span class="fl">1.446290e-12</span>,  <span class="fl">4.127606e-12</span>,  <span class="fl">5.714532e-12</span>,  <span class="fl">1.434466e-11</span>
-<span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">6</span>, byrow <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
-
-<span class="va">phi_ar1_3</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.9999933</span>, <span class="fl">6</span><span class="op">)</span>
-
-<span class="va">sigma_ar1_3</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>
-  <span class="fl">5.062006e-14</span>, <span class="op">-</span><span class="fl">6.432804e-15</span>,  <span class="fl">3.260125e-15</span>,  <span class="fl">6.977995e-15</span>,  <span class="fl">1.727949e-14</span>,  <span class="fl">7.385838e-15</span>,
- <span class="op">-</span><span class="fl">6.432804e-15</span>,  <span class="fl">1.612038e-14</span>, <span class="op">-</span><span class="fl">3.184490e-15</span>, <span class="op">-</span><span class="fl">3.836343e-15</span>, <span class="op">-</span><span class="fl">7.682144e-15</span>, <span class="op">-</span><span class="fl">1.000440e-15</span>,
-  <span class="fl">3.260125e-15</span>, <span class="op">-</span><span class="fl">3.184490e-15</span>,  <span class="fl">2.102923e-14</span>,  <span class="fl">9.145839e-16</span>,  <span class="fl">3.985049e-15</span>, <span class="op">-</span><span class="fl">1.377599e-15</span>,
-  <span class="fl">6.977995e-15</span>, <span class="op">-</span><span class="fl">3.836343e-15</span>,  <span class="fl">9.145839e-16</span>,  <span class="fl">7.881771e-15</span>, <span class="op">-</span><span class="fl">1.291789e-15</span>,  <span class="fl">5.191186e-15</span>,
-  <span class="fl">1.727949e-14</span>, <span class="op">-</span><span class="fl">7.682144e-15</span>,  <span class="fl">3.985049e-15</span>, <span class="op">-</span><span class="fl">1.291789e-15</span>,  <span class="fl">5.442670e-14</span>,  <span class="fl">3.786316e-15</span>,
-  <span class="fl">7.385838e-15</span>, <span class="op">-</span><span class="fl">1.000440e-15</span>, <span class="op">-</span><span class="fl">1.377599e-15</span>,  <span class="fl">5.191186e-15</span>,  <span class="fl">3.786316e-15</span>,  <span class="fl">4.990004e-14</span>
-<span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">6</span>, byrow <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-<span class="va">Xt</span> <span class="op">=</span> <span class="fu"><a href="../reference/simulate_wn.html">simulate_wn</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">sigma_wn</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu"><a href="../reference/simulate_corr_ar1.html">simulate_corr_ar1</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">phi_ar1_1</span>, <span class="va">sigma_ar1_1</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="../reference/simulate_corr_ar1.html">simulate_corr_ar1</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">phi_ar1_2</span>, <span class="va">sigma_ar1_2</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="../reference/simulate_corr_ar1.html">simulate_corr_ar1</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">phi_ar1_3</span>, <span class="va">sigma_ar1_3</span><span class="op">)</span></code></pre></div>
-<p>We again estimate the coefficients for the virtual gyroscopes with the SVO approach and the method proposed in <span class="citation">Vaccaro and Zaki (2017)</span> and compare the results. In this case, SVO, which does not rely on any parametric assumption on the underlying stochastic processes, achieves better results.</p>
+<code class="sourceCode R"><span><span class="va">phi_ar1_1</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.9998705</span>, <span class="fl">6</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">sigma_ar1_1</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="fl">6.713833e-13</span>,  <span class="fl">1.515552e-13</span>,  <span class="fl">1.245013e-13</span>, <span class="op">-</span><span class="fl">7.117931e-15</span>,  <span class="fl">4.284888e-14</span>,  <span class="fl">9.577566e-14</span>,</span>
+<span>  <span class="fl">1.515552e-13</span>,  <span class="fl">5.607230e-13</span>,  <span class="fl">2.264650e-13</span>, <span class="op">-</span><span class="fl">7.737235e-14</span>,  <span class="fl">2.810539e-14</span>,  <span class="fl">1.440987e-13</span>,</span>
+<span>  <span class="fl">1.245013e-13</span>,  <span class="fl">2.264650e-13</span>,  <span class="fl">7.499051e-13</span>, <span class="op">-</span><span class="fl">1.626870e-14</span>, <span class="op">-</span><span class="fl">5.293172e-14</span>, <span class="op">-</span><span class="fl">9.995748e-14</span>,</span>
+<span> <span class="op">-</span><span class="fl">7.117931e-15</span>, <span class="op">-</span><span class="fl">7.737235e-14</span>, <span class="op">-</span><span class="fl">1.626870e-14</span>,  <span class="fl">1.207920e-13</span>, <span class="op">-</span><span class="fl">1.873054e-14</span>,  <span class="fl">6.817015e-14</span>,</span>
+<span>  <span class="fl">4.284888e-14</span>,  <span class="fl">2.810539e-14</span>, <span class="op">-</span><span class="fl">5.293172e-14</span>, <span class="op">-</span><span class="fl">1.873054e-14</span>,  <span class="fl">7.499327e-13</span>,  <span class="fl">2.414762e-13</span>,</span>
+<span>  <span class="fl">9.577566e-14</span>,  <span class="fl">1.440987e-13</span>, <span class="op">-</span><span class="fl">9.995748e-14</span>,  <span class="fl">6.817015e-14</span>,  <span class="fl">2.414762e-13</span>,  <span class="fl">6.461646e-13</span></span>
+<span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">6</span>, byrow <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">phi_ar1_2</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.9975214</span>, <span class="fl">6</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">sigma_ar1_2</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="fl">4.008129e-12</span>, <span class="op">-</span><span class="fl">1.806110e-13</span>, <span class="op">-</span><span class="fl">4.477015e-13</span>, <span class="op">-</span><span class="fl">1.048567e-12</span>,  <span class="fl">2.546714e-12</span>, <span class="op">-</span><span class="fl">2.349504e-12</span>,</span>
+<span> <span class="op">-</span><span class="fl">1.806110e-13</span>,  <span class="fl">1.177847e-11</span>, <span class="op">-</span><span class="fl">1.290506e-13</span>, <span class="op">-</span><span class="fl">3.741980e-12</span>, <span class="op">-</span><span class="fl">5.110108e-13</span>,  <span class="fl">2.849421e-12</span>,</span>
+<span> <span class="op">-</span><span class="fl">4.477015e-13</span>, <span class="op">-</span><span class="fl">1.290506e-13</span>,  <span class="fl">1.965775e-11</span>,  <span class="fl">2.026288e-12</span>, <span class="op">-</span><span class="fl">1.750890e-12</span>,  <span class="fl">1.446290e-12</span>,</span>
+<span> <span class="op">-</span><span class="fl">1.048567e-12</span>, <span class="op">-</span><span class="fl">3.741980e-12</span>,  <span class="fl">2.026288e-12</span>,  <span class="fl">1.309887e-11</span>,  <span class="fl">2.317561e-13</span>,  <span class="fl">4.127606e-12</span>,</span>
+<span>  <span class="fl">2.546714e-12</span>, <span class="op">-</span><span class="fl">5.110108e-13</span>, <span class="op">-</span><span class="fl">1.750890e-12</span>,  <span class="fl">2.317561e-13</span>,  <span class="fl">1.928375e-11</span>,  <span class="fl">5.714532e-12</span>,</span>
+<span> <span class="op">-</span><span class="fl">2.349504e-12</span>,  <span class="fl">2.849421e-12</span>,  <span class="fl">1.446290e-12</span>,  <span class="fl">4.127606e-12</span>,  <span class="fl">5.714532e-12</span>,  <span class="fl">1.434466e-11</span></span>
+<span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">6</span>, byrow <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">phi_ar1_3</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.9999933</span>, <span class="fl">6</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">sigma_ar1_3</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="fl">5.062006e-14</span>, <span class="op">-</span><span class="fl">6.432804e-15</span>,  <span class="fl">3.260125e-15</span>,  <span class="fl">6.977995e-15</span>,  <span class="fl">1.727949e-14</span>,  <span class="fl">7.385838e-15</span>,</span>
+<span> <span class="op">-</span><span class="fl">6.432804e-15</span>,  <span class="fl">1.612038e-14</span>, <span class="op">-</span><span class="fl">3.184490e-15</span>, <span class="op">-</span><span class="fl">3.836343e-15</span>, <span class="op">-</span><span class="fl">7.682144e-15</span>, <span class="op">-</span><span class="fl">1.000440e-15</span>,</span>
+<span>  <span class="fl">3.260125e-15</span>, <span class="op">-</span><span class="fl">3.184490e-15</span>,  <span class="fl">2.102923e-14</span>,  <span class="fl">9.145839e-16</span>,  <span class="fl">3.985049e-15</span>, <span class="op">-</span><span class="fl">1.377599e-15</span>,</span>
+<span>  <span class="fl">6.977995e-15</span>, <span class="op">-</span><span class="fl">3.836343e-15</span>,  <span class="fl">9.145839e-16</span>,  <span class="fl">7.881771e-15</span>, <span class="op">-</span><span class="fl">1.291789e-15</span>,  <span class="fl">5.191186e-15</span>,</span>
+<span>  <span class="fl">1.727949e-14</span>, <span class="op">-</span><span class="fl">7.682144e-15</span>,  <span class="fl">3.985049e-15</span>, <span class="op">-</span><span class="fl">1.291789e-15</span>,  <span class="fl">5.442670e-14</span>,  <span class="fl">3.786316e-15</span>,</span>
+<span>  <span class="fl">7.385838e-15</span>, <span class="op">-</span><span class="fl">1.000440e-15</span>, <span class="op">-</span><span class="fl">1.377599e-15</span>,  <span class="fl">5.191186e-15</span>,  <span class="fl">3.786316e-15</span>,  <span class="fl">4.990004e-14</span></span>
+<span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">6</span>, byrow <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">Xt</span> <span class="op">=</span> <span class="fu"><a href="../reference/simulate_wn.html">simulate_wn</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">sigma_wn</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="../reference/simulate_corr_ar1.html">simulate_corr_ar1</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">phi_ar1_1</span>, <span class="va">sigma_ar1_1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/simulate_corr_ar1.html">simulate_corr_ar1</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">phi_ar1_2</span>, <span class="va">sigma_ar1_2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/simulate_corr_ar1.html">simulate_corr_ar1</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">phi_ar1_3</span>, <span class="va">sigma_ar1_3</span><span class="op">)</span></span></code></pre></div>
+<p>We again estimate the coefficients for the virtual gyroscopes with
+the SVO approach and the method proposed in <span class="citation">Vaccaro and Zaki (2017)</span> and compare the results.
+In this case, SVO, which does not rely on any parametric assumption on
+the underlying stochastic processes, achieves better results.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">c_svo</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs.html">find_optimal_coefs</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">weights</span><span class="op">)</span>
-<span class="va">c_svo</span></code></pre></div>
-<pre><code><span class="co">## [1] -0.01993349  0.28989108  0.07229865  0.54648993  0.13307622 -0.02182240</span></code></pre>
+<code class="sourceCode R"><span><span class="va">c_svo</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs.html">find_optimal_coefs</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">weights</span><span class="op">)</span></span>
+<span><span class="va">c_svo</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] -0.01993349  0.28989108  0.07229865  0.54648993  0.13307622 -0.02182240</span></span></code></pre>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Estimate the Q matrix (the covariance of the Random Walk innovations)</span>
-<span class="va">Q_hat</span> <span class="op">=</span> <span class="fu"><a href="../reference/algorithm_2.html">algorithm_2</a></span><span class="op">(</span><span class="va">Xt</span><span class="op">)</span><span class="op">$</span><span class="va">Q</span>
-
-<span class="co"># Compute the coefficients</span>
-<span class="va">c_vaccarozaki</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs_vaccaro.html">find_optimal_coefs_vaccaro</a></span><span class="op">(</span><span class="va">Q_hat</span><span class="op">)</span>
-<span class="va">c_vaccarozaki</span></code></pre></div>
-<pre><code><span class="co">## [1]  0.01690066  0.07819669  0.28049420  0.50242681 -0.03989131  0.16187295</span></code></pre>
+<code class="sourceCode R"><span><span class="co"># Estimate the Q matrix (the covariance of the Random Walk innovations)</span></span>
+<span><span class="va">Q_hat</span> <span class="op">=</span> <span class="fu"><a href="../reference/algorithm_2.html">algorithm_2</a></span><span class="op">(</span><span class="va">Xt</span><span class="op">)</span><span class="op">$</span><span class="va">Q</span></span>
+<span></span>
+<span><span class="co"># Compute the coefficients</span></span>
+<span><span class="va">c_vaccarozaki</span> <span class="op">=</span> <span class="fu"><a href="../reference/find_optimal_coefs_vaccaro.html">find_optimal_coefs_vaccaro</a></span><span class="op">(</span><span class="va">Q_hat</span><span class="op">)</span></span>
+<span><span class="va">c_vaccarozaki</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1]  0.01690066  0.07819669  0.28049420  0.50242681 -0.03989131  0.16187295</span></span></code></pre>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot_virtual_gyro.html">plot_virtual_gyro</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">c_svo</span>, <span class="va">c_vaccarozaki</span>, names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SVO"</span>, <span class="st">"VaccaroZaki"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_virtual_gyro.html">plot_virtual_gyro</a></span><span class="op">(</span><span class="va">Xt</span>, <span class="va">c_svo</span>, <span class="va">c_vaccarozaki</span>, names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SVO"</span>, <span class="st">"VaccaroZaki"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="vignettes_files/figure-html/unnamed-chunk-12-1.png" width="672"></p>
 </div>
 </div>
-<div class="section level1 unnumbered">
-<h1 class="unnumbered" id="bibliography">Bibliography<a class="anchor" aria-label="anchor" href="#bibliography"></a>
-</h1>
+<div class="section level2">
+<h2 class="unnumbered" id="bibliography">Bibliography<a class="anchor" aria-label="anchor" href="#bibliography"></a>
+</h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-s17020352" class="csl-entry">
-Vaccaro, Richard J., and Ahmed S. Zaki. 2017. <span>“Reduced-Drift Virtual Gyro from an Array of Low-Cost Gyros.”</span> <em>Sensors</em> 17 (2). <a href="https://doi.org/10.3390/s17020352" class="external-link">https://doi.org/10.3390/s17020352</a>.
+Vaccaro, Richard J., and Ahmed S. Zaki. 2017. <span>“Reduced-Drift
+Virtual Gyro from an Array of Low-Cost Gyros.”</span> <em>Sensors</em>
+17 (2). <a href="https://doi.org/10.3390/s17020352" class="external-link">https://doi.org/10.3390/s17020352</a>.
 </div>
 <div id="ref-zhang2021scalewise" class="csl-entry">
-Zhang, Yuming, Davide A. Cucci, Roberto Molinari, and Stéphane Guerrier. 2021. <span>“Scale-Wise Variance Minimization for Optimal Virtual Signals: An Approach for Redundant Gyroscopes.”</span> <a href="http://arxiv.org/abs/2106.15997" class="external-link">http://arxiv.org/abs/2106.15997</a>.
+Zhang, Yuming, Davide A Cucci, Roberto Molinari, and Stéphane Guerrier.
+2022. <span>“Scale-Wise Variance Minimization for Optimal Virtual
+Signals: An Approach for Redundant Gyroscopes.”</span> <em>IEEE
+Transactions on Signal Processing</em> 70: 5320–33.
 </div>
 </div>
 </div>
@@ -262,7 +305,7 @@ Zhang, Yuming, Davide A. Cucci, Roberto Molinari, and Stéphane Guerrier. 2021. 
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
